@@ -2,32 +2,33 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_migrate import Migrate  # Import Flask-Migrate
 
-# Inicjalizacja SQLAlchemy
+# Inicjalizacja bazy danych
 db = SQLAlchemy()
+migrate = Migrate()  # Dodanie migracji
 
 def create_app():
-    # Tworzenie instancji Flask
     app = Flask(__name__)
 
-    # Ścieżka do bazy danych
-    basedir = os.path.abspath(os.path.dirname(__file__))  # Ścieżka do folderu `app`
+    # Konfiguracja bazy danych
+    basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "../database.db")}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Wyłączenie zbędnych powiadomień
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Inicjalizacja rozszerzeń
+    # Inicjalizacja bazy danych i CORS
     db.init_app(app)
+    migrate.init_app(app, db)  # Inicjalizacja migracji
     CORS(app)
 
     # Logowanie ścieżki do bazy danych
     print(f"Baza danych znajduje się pod: {app.config['SQLALCHEMY_DATABASE_URI']}")
 
-    # Rejestracja tras (routes)
     with app.app_context():
-        from .routes import main
-        app.register_blueprint(main)  # Rejestracja blueprintu tras
+        db.create_all()  # Tworzenie tabel w bazie danych
 
-        # Tworzenie tabel w bazie danych
-        db.create_all()
+        # Importowanie i rejestrowanie tras po inicjalizacji aplikacji
+        from .routes import main
+        app.register_blueprint(main)
 
     return app
