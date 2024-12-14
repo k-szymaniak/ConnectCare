@@ -11,8 +11,8 @@ class User(db.Model):
     description = db.Column(db.Text, nullable=True)  # Opcjonalny opis
     birth_date = db.Column(db.Date, nullable=True)  # Data urodzenia
 
-    # Relacja z Post, backref do posts w User
-    posts = db.relationship('Post', backref='author', lazy=True)  # 'author' dla Post
+    # Relacja z Post, backref do 'user_posts' w User
+    posts = db.relationship('Post', backref='author', lazy=True)  # 'author' w Post
 
 
 class Post(db.Model):
@@ -25,6 +25,5 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    # Relacja do User, backref do 'author' w Post
-    user = db.relationship('User', backref=db.backref('posts', lazy=True))  # 'posts' w User
-
+    # Relacja do User, backref do 'posts' w Post
+    user = db.relationship('User', backref=db.backref('user_posts', lazy=True))  # 'user_posts' w User
