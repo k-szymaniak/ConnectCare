@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function Profile({ user, setUser }) {
@@ -8,6 +8,22 @@ function Profile({ user, setUser }) {
   const [description, setDescription] = useState(user?.description || '');
   const [birthDate, setBirthDate] = useState(user?.birth_date || '');
   const [message, setMessage] = useState('');
+  const [userPosts, setUserPosts] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      // Fetch user's posts when the user is set
+      const fetchPosts = async () => {
+        try {
+          const response = await axios.get(`http://127.0.0.1:5000/user_posts/${user.id}`);
+          setUserPosts(response.data);
+        } catch (error) {
+          console.error("Error fetching user posts:", error);
+        }
+      };
+      fetchPosts();
+    }
+  }, [user]);
 
   const handleSave = async () => {
     try {
@@ -17,11 +33,12 @@ function Profile({ user, setUser }) {
         description,
         birth_date: birthDate,
       });
-      setUser({ ...user, name, role, description, birth_date: birthDate }); // Aktualizacja lokalnego stanu użytkownika
+
+      setUser(response.data.user); // Update user state after editing
       setMessage(response.data.message);
       setIsEditing(false);
     } catch (error) {
-      console.error(error);
+      console.error("Error during profile update:", error.response || error.message);
       setMessage(error.response?.data?.error || 'An unexpected error occurred');
     }
   };
@@ -101,6 +118,23 @@ function Profile({ user, setUser }) {
           </button>
         </>
       )}
+
+      <section style={styles.postsSection}>
+        <h3>User Posts</h3>
+        {userPosts.length > 0 ? (
+          userPosts.map(post => (
+            <div key={post.id} style={styles.postCard}>
+              <h4>{post.title}</h4>
+              <p>{post.description}</p>
+              {post.image_url && <img src={post.image_url} alt={post.title} style={styles.image} />}
+              <p><strong>Tags:</strong> {post.tags}</p>
+              <p><strong>{post.is_paid ? 'Paid' : 'Free'} Help</strong></p>
+            </div>
+          ))
+        ) : (
+          <p>No posts found.</p>
+        )}
+      </section>
     </div>
   );
 }
@@ -148,6 +182,23 @@ const styles = {
     textAlign: 'center',
     marginTop: '10px',
     color: '#28a745',
+  },
+  postsSection: {
+    marginTop: '30px',
+  },
+  postCard: {
+    padding: '15px',
+    backgroundColor: '#e9ecef',
+    borderRadius: '10px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    textAlign: 'left',
+    marginBottom: '15px',
+  },
+  image: {
+    width: '100%',
+    maxWidth: '400px',
+    marginTop: '10px',
+    borderRadius: '8px',
   },
 };
 

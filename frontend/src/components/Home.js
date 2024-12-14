@@ -1,6 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom'; // Importujemy Link do nawigacji
 
-function Home() {
+function Home({ user }) {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    // Fetch posts from backend
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/posts');
+        setPosts(response.data);  // Save posts data to state
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+    fetchPosts();
+  }, []);
+
   return (
     <div className="home-container" style={styles.container}>
       <header style={styles.header}>
@@ -10,22 +27,32 @@ function Home() {
       </header>
       
       <section style={styles.section}>
-        <h2>Features</h2>
-        <div style={styles.features}>
-          <div style={styles.feature}>
-            <h3>Task Management</h3>
-            <p>Organize your tasks and boost productivity with ease.</p>
-          </div>
-          <div style={styles.feature}>
-            <h3>Profile Management</h3>
-            <p>Update and manage your personal profile in a few clicks.</p>
-          </div>
-          <div style={styles.feature}>
-            <h3>Analytics</h3>
-            <p>Track your performance and achieve your goals faster.</p>
-          </div>
+        <h2>Recent Posts</h2>
+        <div style={styles.posts}>
+          {posts.length > 0 ? (
+            posts.map(post => (
+              <div key={post.id} style={styles.postCard}>
+                <h3>{post.title}</h3>
+                <p>{post.description}</p>
+                {post.image_url && <img src={post.image_url} alt={post.title} style={styles.image} />}
+                <p><strong>Tags:</strong> {post.tags}</p>
+                <p><strong>{post.is_paid ? 'Paid' : 'Free'} Help</strong></p>
+              </div>
+            ))
+          ) : (
+            <p>No posts available.</p>
+          )}
         </div>
       </section>
+
+      {/* Przycisk do dodania posta tylko dla użytkowników z rolą 'Osoba potrzebująca' */}
+      {user && user.role === 'Osoba potrzebująca' && (
+        <section>
+          <Link to="/create_post">
+            <button style={styles.createPostButton}>Create Post</button>
+          </Link>
+        </section>
+      )}
       
       <footer style={styles.footer}>
         <p>© 2024 ConnectCare. All rights reserved.</p>
@@ -62,20 +89,34 @@ const styles = {
     marginTop: '40px',
     textAlign: 'center',
   },
-  features: {
+  posts: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    gap: '20px',
     marginTop: '20px',
-    flexWrap: 'wrap',
   },
-  feature: {
-    flex: '1 1 calc(33.333% - 20px)',
-    margin: '10px',
+  postCard: {
     padding: '20px',
     backgroundColor: '#e9ecef',
     borderRadius: '10px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
+    textAlign: 'left',
+  },
+  image: {
+    width: '100%',
+    maxWidth: '400px',
+    marginTop: '10px',
+    borderRadius: '8px',
+  },
+  createPostButton: {
+    backgroundColor: '#28a745',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    padding: '10px 20px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    marginTop: '20px',
   },
   footer: {
     marginTop: '50px',
