@@ -1,3 +1,117 @@
+<p><i>The Polish version of this document is available at the bottom.</i></p>
+<h1>ConnectCare – Connecting Hearts to Help</h1>
+<b>ConnectCare</b> is a social platform and mobile application that connects volunteers with people in need within their local communities. The primary goal of ConnectCare is to facilitate easy communication and collaboration between these two groups to deliver support where it is most needed. The project will initially be implemented across Poland, with the vision to expand wherever help for others is required in the future.
+
+<h1>SWOT Analysis</h1>
+<h3>Strengths</h3>
+<ul>
+    <li><b>Innovation:</b> ConnectCare represents an innovative approach to using technology to support local communities and help those in need.</li>
+    <li><b>User-Friendly:</b> A simple and intuitive platform ensures that both volunteers and organizations can easily use the application.</li>
+    <li><b>Scalability:</b> There is potential for the application to grow and expand to other geographic areas and different types of charitable activities.</li>
+    <li><b>Community Building:</b> ConnectCare can help build stronger communities by encouraging collaboration and mutual aid.</li>
+</ul>
+
+<h3>Weaknesses</h3>
+<ul>
+    <li><b>Dependence on Technology:</b> The application relies on internet technology, which may pose a barrier for older adults or those without internet access.</li>
+    <li><b>Risk of Misuse:</b> There is a risk that some users might exploit the platform for dishonest or improper purposes.</li>
+    <li><b>Trust-Building Requirement:</b> In the early stages of the project, it may be challenging to convince both charitable organizations and volunteers to use the new platform.</li>
+</ul>
+
+<h3>Opportunities</h3>
+<ul>
+    <li><b>Increased Social Awareness:</b> ConnectCare can contribute to raising awareness about local needs and ways everyone can get involved.</li>
+    <li><b>Partnerships with Organizations:</b> Opportunities exist to collaborate with local charitable organizations, schools, healthcare facilities, and more to expand the app's reach and impact.</li>
+    <li><b>Development of Features and Services:</b> Based on community feedback and needs, the app can evolve by adding new features and services to better address local demands.</li>
+</ul>
+
+<h3>Threats</h3>
+<ul>
+    <li><b>Competition:</b> There is a possibility of competing apps or platforms emerging to vie for user attention and resources.</li>
+    <li><b>Data Security Issues:</b> Privacy breaches could deter users from adopting the platform.</li>
+    <li><b>Financial Constraints:</b> A lack of stable funding sources may hinder the app's development and long-term maintenance.</li>
+</ul>
+
+<h1>Functional Requirements</h1>
+<b>1.1 User Registration:</b>
+<ul>
+    <li>Allow users to register accounts using email or external accounts (e.g., Facebook, Google).</li>
+    <li>Email verification during registration.</li>
+    <li>Profile editing, including adding information about skills, interests, and time availability.</li>
+</ul>
+
+<b>1.2 Local Needs Map:</b>
+<ul>
+    <li>Display an interactive map showing locations where help is needed.</li>
+    <li>Enable filtering and sorting locations by category (e.g., shelters, care homes, charitable organizations).</li>
+    <li>Provide information for each location, including descriptions of needs, opening hours, and contact details.</li>
+</ul>
+
+<b>1.3 Tasks and Events:</b>
+<ul>
+    <li>Allow charitable organizations, healthcare facilities, etc., to add tasks and events.</li>
+    <li>Display a list of available tasks and events with details such as description, location, date, and time.</li>
+</ul>
+
+<b>1.4 Matchmaking:</b>
+<ul>
+    <li>An algorithm to match volunteers with suitable tasks based on their skills, interests, and location.</li>
+    <li>Show suggestions of tasks or events tailored to the user's profile.</li>
+</ul>
+
+<b>1.5 Communication:</b>
+<ul>
+    <li>Enable communication between users via private messages, chat, or comments.</li>
+    <li>Notifications for new messages and activity on the platform.</li>
+</ul>
+
+<h1>Non-Functional Requirements</h1>
+<b>2.1 Performance:</b>
+<ul>
+    <li>Ensure fast page loading and smooth user interface performance.</li>
+    <li>Optimize the app to handle a large number of users and data.</li>
+</ul>
+
+<b>2.2 Security:</b>
+<ul>
+    <li>Implement proper security measures such as user data encryption, identity verification, and prevention of XSS and CSRF attacks.</li>
+    <li>Regular updates and security audits of the application.</li>
+</ul>
+
+<b>2.3 Accessibility:</b>
+<ul>
+    <li>Ensure app availability across various devices (computers, tablets, smartphones) and browsers.</li>
+    <li>Ensure accessibility for people with disabilities, following WCAG guidelines.</li>
+</ul>
+
+<b>2.4 Scalability:</b>
+<ul>
+    <li>Design the app to allow for easy scaling in case of increased user numbers or technological demands.</li>
+</ul>
+
+<b>2.5 Maintainability:</b>
+<ul>
+    <li>Create clear and modular code that is easy to understand and maintain by developers.</li>
+    <li>Technical documentation for the application, including configuration, installation, and development instructions.</li>
+</ul>
+
+<h1>Integration Requirements</h1>
+<b>3.1 Map Integration:</b>
+<ul>
+    <li>Utilize APIs for integration with mapping services like Google Maps to display locations and routes.</li>
+</ul>
+
+<b>3.2 Integration with Social Media:</b>
+<ul>
+    <li>Enable sharing of user activity on the platform to social media platforms like Facebook, Twitter, etc.</li>
+</ul>
+
+<b>3.3 Integration with Payment Systems:</b>
+<ul>
+    <li>Add the ability to conduct online transactions, such as donations for charitable purposes or purchasing event tickets.</li>
+</ul>
+
+
 <h1>ConnectCare – Łączymy serca, by pomagać</h1>
 <b>ConnectCare</b> to platforma społecznościowa i aplikacja mobilna, która łączy wolontariuszy z
 osobami potrzebującymi pomocy w ich lokalnych społecznościach. Głównym celem
