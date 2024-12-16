@@ -73,32 +73,44 @@ function Home({ user }) {
         </div>
       </section>
 
-      {/* Sekcja 2 */}
+      {/* Nowa Sekcja: Zalety */}
       <section style={styles.infoSection}>
         <div style={styles.infoContent}>
-          <h2 style={styles.heading}>Pomoc w prosty sposób</h2>
-          <p style={styles.akapit}>
-          ConnectCare to wyjątkowe miejsce, stworzone z myślą o tych, którzy chcą pomagać innym, a jednocześnie nie boią się poprosić o wsparcie, gdy tego potrzebują. To przestrzeń, gdzie możesz dzielić się swoimi doświadczeniami, udzielać rad, a także korzystać z mądrości i pomocy innych użytkowników.
-
-Rejestracja na platformie jest szybka i intuicyjna – wystarczy kilka kroków, aby dołączyć do naszej społeczności. Po założeniu konta masz możliwość stworzenia swojego pierwszego posta. Możesz opisać sytuację, z którą się mierzysz, lub zaoferować pomoc w obszarze, w którym masz doświadczenie czy kompetencje. To doskonała okazja, by wpłynąć na życie innych i jednocześnie dostrzec, jak wiele dobrego możesz otrzymać w zamian.
-          </p>
+          <h2 style={styles.heading}>Dlaczego warto dołączyć?</h2>
+          <ul style={styles.list}>
+            <li>Intuicyjna platforma – łatwa w obsłudze.</li>
+            <li>Połączenie z ludźmi z całego świata.</li>
+            <li>Możliwość dzielenia się doświadczeniem i wiedzą.</li>
+            <li>Budowanie społeczności opartej na wsparciu i trosce.</li>
+          </ul>
         </div>
         <div style={styles.imageContainer}>
-          <img src="/img/support-2.jpg" alt="Help Us" style={styles.infoImage} />
+          <img src="/img/benefits.jpg" alt="Benefits" style={styles.infoImage} />
         </div>
       </section>
 
-      {/* Sekcja 3 */}
+      {/* Nowa Sekcja: Kontakt */}
+      <section style={styles.contactSection}>
+        <h2 style={styles.heading}>Skontaktuj się z nami</h2>
+        <p style={styles.contactText}>
+          Masz pytania? Chcesz dowiedzieć się więcej o naszej platformie? Skontaktuj się z nami!
+        </p>
+        <p style={styles.contactInfo}><strong>Email:</strong> support@connectcare.com</p>
+        <p style={styles.contactInfo}><strong>Telefon:</strong> +48 123 456 789</p>
+        <p style={styles.contactInfo}><strong>Adres:</strong> ul. Pomocna 12, Warszawa</p>
+      </section>
+
+      {/* Nowa Sekcja: Misja */}
       <section style={styles.infoSectionReversed}>
         <div style={styles.infoContent}>
-          <h2 style={styles.heading}>Łączymy wolontariuszy i osoby w potrzebie</h2>
+          <h2 style={styles.heading}>Nasza Misja</h2>
           <p style={styles.akapit}>
-            Nasza platforma umożliwia szybkie połączenie ludzi, którzy oferują pomoc, z tymi, którzy jej potrzebują.
-            To miejsce, w którym nie ma barier – każdy może się włączyć i pomóc.
+            ConnectCare powstało, by zbudować świat, w którym każdy ma szansę otrzymać pomoc w trudnej sytuacji.
+            Naszą misją jest łączenie ludzi o otwartych sercach, gotowych pomagać i wspierać się wzajemnie.
           </p>
         </div>
         <div style={styles.imageContainer}>
-          <img src="/img/support.jpg" alt="Volunteers" style={styles.infoImage} />
+          <img src="/img/mission.jpg" alt="Our Mission" style={styles.infoImage} />
         </div>
       </section>
 
@@ -140,7 +152,7 @@ const styles = {
     position: 'relative',
   },
   akapit: {
-    textAlign: 'justify'
+    textAlign: 'justify',
   },
   headerOverlay: {
     position: 'absolute',
@@ -181,7 +193,7 @@ const styles = {
   },
   imageContainer: {
     marginBottom: '15px',
-    width: '100%', // Increased the width of images
+    width: '100%',
     float: 'left',
     marginRight: '20px',
   },
@@ -209,7 +221,7 @@ const styles = {
     padding: '50px',
   },
   infoImage: {
-    width: '100%', // Increased the width of images to 70%
+    width: '100%',
     maxWidth: '100%',
     marginTop: '20px',
     borderRadius: '8px',
@@ -217,7 +229,7 @@ const styles = {
   image: {
     width: '100%',
     height: 'auto',
-    maxHeight: 'auto', // Increased max height for images
+    maxHeight: 'auto',
     borderRadius: '8px',
     objectFit: 'cover',
   },
@@ -283,7 +295,25 @@ const styles = {
   createPostSection: {
     marginTop: '30px',
   },
+  contactSection: {
+    backgroundColor: '#f1f1f1',
+    padding: '40px 20px',
+    marginTop: '50px',
+    textAlign: 'center',
+  },
+  contactText: {
+    fontSize: '1rem',
+    marginBottom: '20px',
+  },
+  contactInfo: {
+    fontSize: '1rem',
+    marginBottom: '10px',
+  },
+  list: {
+    textAlign: 'left',
+    marginLeft: '20%',
+    marginRight: '20%',
+  },
 };
 
 export default Home;
-
