@@ -14,7 +14,7 @@ def register():
         email = data.get('email')
         name = data.get('name')
         password = data.get('password')
-        role = data.get('role', 'Osoba potrzebująca')  # Domyślna wartość
+        role = data.get('role', 'Osoba potrzebująca')  # Domyślnie 'Osoba potrzebująca'
         description = data.get('description', '')
         birth_date_str = data.get('birth_date')  # Data w formacie YYYY-MM-DD
 
@@ -129,11 +129,19 @@ def create_post():
         return jsonify({"error": "An unexpected error occurred"}), 500
 
 
-# Pobranie wszystkich postów
+# Pobranie wszystkich postów z filtrowaniem po płatnych i darmowych
 @main.route('/posts', methods=['GET'])
 def get_posts():
     try:
-        posts = Post.query.all()
+        # Odbieranie parametru 'filter' z query string
+        filter_type = request.args.get('filter', 'all')  # Domyślnie wszystkie posty
+        if filter_type == 'paid':
+            posts = Post.query.filter_by(is_paid=True).all()  # Filtracja tylko płatnych postów
+        elif filter_type == 'free':
+            posts = Post.query.filter_by(is_paid=False).all()  # Filtracja tylko darmowych postów
+        else:
+            posts = Post.query.all()  # Wszystkie posty, jeśli nie podano filtra
+
         return jsonify([{
             "id": post.id,
             "title": post.title,

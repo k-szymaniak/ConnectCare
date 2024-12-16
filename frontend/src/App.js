@@ -6,14 +6,17 @@ import Tasks from './components/Tasks';
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
-import AddPost from './components/AddPost';  // Dodajemy komponent AddPost
+import PostList from './components/PostList';  // Nowy import
+import CreatePost from './components/AddPost';  // Nowy import
 
 function App() {
+  // Inicjalizacja stanu użytkownika z Local Storage
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
+  // Aktualizacja Local Storage przy zmianie użytkownika
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -26,12 +29,13 @@ function App() {
     <Router>
       <Navbar user={user} setUser={setUser} />
       <Routes>
-        <Route path="/" element={<Home user={user} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/tasks" element={<Tasks />} />
-        <Route path="/profile" element={<Profile user={user} />} />
+        <Route path="/profile" element={<Profile user={user} />} /> {/* Przekazujemy user */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login setUser={setUser} />} />
-        <Route path="/create_post" element={<AddPost user={user} />} /> {/* Dodajemy trasę z user */}
+        <Route path="/posts" element={<PostList />} /> {/* Nowa trasa dla postów */}
+        <Route path="/create_post" element={<CreatePost user={user} />} /> {/* Nowa trasa dla tworzenia postu */}
       </Routes>
     </Router>
   );

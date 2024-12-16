@@ -37,6 +37,9 @@ function Navbar({ user, setUser }) {
             <Link to="/" style={styles.link}>
               Home
             </Link>
+            <Link to="/all_posts" style={styles.link}> {/* Dodany link do strony z postami */}
+              Wszystkie Posty
+            </Link>
             <Link to="/" style={styles.link}>
               Szukasz Wolontariusz?
             </Link>
@@ -78,6 +81,9 @@ function Navbar({ user, setUser }) {
         <div style={styles.desktopMenu}>
           <Link to="/" style={styles.link}>
             Home
+          </Link>
+          <Link to="/posts" style={styles.link}> {/* Dodany link do strony z postami */}
+            Wszystkie Posty
           </Link>
           <Link to="/" style={styles.link}>
             Szukasz Wolontariusz?
@@ -281,6 +287,5 @@ const styles = {
     },
   },
 };
-
 
 export default Navbar;
