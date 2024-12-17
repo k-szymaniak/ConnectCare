@@ -6,40 +6,37 @@ function Login({ setUser }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false); // Dodano stan ładowania
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Sprawdzanie poprawności pól
     if (!email || !password) {
       setMessage('Please fill out all fields.');
       return;
     }
 
     try {
-      setLoading(true); // Rozpoczęcie ładowania
+      setLoading(true);
       const response = await axios.post('http://127.0.0.1:5000/login', { email, password });
-      setUser(response.data.user); // Ustawia zalogowanego użytkownika
+      setUser(response.data.user);
       setMessage(response.data.message);
-
-      // Przekierowanie na stronę główną po zalogowaniu
       navigate('/');
     } catch (error) {
       console.error(error);
       setMessage(error.response?.data?.error || 'An unexpected error occurred');
     } finally {
-      setLoading(false); // Koniec ładowania
+      setLoading(false);
     }
   };
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Login</h2>
+      <h2 style={styles.title}>Witaj ponownie</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <div style={styles.inputGroup}>
-          <label>Email:</label>
+          <label style={styles.label}>Email:</label>
           <input
             type="email"
             value={email}
@@ -49,7 +46,7 @@ function Login({ setUser }) {
           />
         </div>
         <div style={styles.inputGroup}>
-          <label>Password:</label>
+          <label style={styles.label}>Password:</label>
           <input
             type="password"
             value={password}
@@ -58,7 +55,7 @@ function Login({ setUser }) {
             style={styles.input}
           />
         </div>
-        <button type="submit" style={styles.button} disabled={loading}>
+        <button type="submit" style={{ ...styles.button, opacity: loading ? 0.7 : 1 }} disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
@@ -73,18 +70,20 @@ function Login({ setUser }) {
 
 const styles = {
   container: {
-    maxWidth: '400px',
-    margin: '50px auto',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#f9f9f9',
+    maxWidth: '360px',
+    margin: '10% auto',
+    padding: '20px 30px',
+    borderRadius: '12px',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+    backgroundColor: '#fff',
+    fontFamily: "Arial, sans-serif",
+    textAlign: 'center',
   },
   title: {
-    textAlign: 'center',
-    color: '#007bff',
+    color: '#333',
+    fontSize: '26px',
     marginBottom: '20px',
+    fontWeight: 'bold',
   },
   form: {
     display: 'flex',
@@ -92,38 +91,47 @@ const styles = {
   },
   inputGroup: {
     marginBottom: '15px',
+    textAlign: 'left',
+  },
+  label: {
+    display: 'block',
+    marginBottom: '5px',
+    color: '#555',
   },
   input: {
     width: '100%',
     padding: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    fontSize: '16px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    fontSize: '14px',
+    outline: 'none',
+    transition: 'box-shadow 0.3s ease',
+  },
+  inputFocus: {
+    boxShadow: '0 0 4px rgba(0, 123, 255, 0.5)',
   },
   button: {
-    backgroundColor: '#007bff',
+    background: 'linear-gradient(90deg, #007bff, #0056b3)',
     color: '#fff',
     border: 'none',
-    borderRadius: '5px',
-    padding: '10px',
-    cursor: 'pointer',
+    borderRadius: '8px',
+    padding: '12px 0',
     fontSize: '16px',
-    opacity: 1,
-    transition: 'opacity 0.3s ease',
+    cursor: 'pointer',
+    transition: 'transform 0.2s ease',
   },
-  buttonDisabled: {
-    opacity: 0.6,
-    cursor: 'not-allowed',
+  buttonHover: {
+    transform: 'scale(1.02)',
   },
   success: {
-    textAlign: 'center',
-    marginTop: '10px',
     color: '#28a745',
+    marginTop: '10px',
+    fontSize: '14px',
   },
   error: {
-    textAlign: 'center',
-    marginTop: '10px',
     color: '#d9534f',
+    marginTop: '10px',
+    fontSize: '14px',
   },
 };
 

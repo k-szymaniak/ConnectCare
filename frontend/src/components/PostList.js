@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function PostList() {
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState('all'); // Domyślnie wszystkie posty
+  const navigate = useNavigate();
 
   // Fetch posts from API with filter
   useEffect(() => {
@@ -16,22 +18,22 @@ function PostList() {
       }
     };
     fetchPosts();
-  }, [filter]); // Zmieniamy zależność na `filter` - za każdym razem, gdy się zmienia, pobieramy nowe posty
+  }, [filter]);
 
   return (
     <div style={styles.container}>
-      <h2>All Posts</h2>
+      <h2 style={styles.title}>Wszystkie Pomoc</h2>
 
       {/* Filtry */}
       <div style={styles.filterContainer}>
         <button style={styles.filterButton} onClick={() => setFilter('all')}>
-          All Posts
+          Wszystkie Pomoc
         </button>
         <button style={styles.filterButton} onClick={() => setFilter('paid')}>
-          Paid Posts
+          Płatna Pomoc
         </button>
         <button style={styles.filterButton} onClick={() => setFilter('free')}>
-          Free Posts
+          Darmowa Pomoc
         </button>
       </div>
 
@@ -45,15 +47,28 @@ function PostList() {
               <div style={styles.textContent}>
                 <h3 style={styles.postTitle}>{post.title}</h3>
                 <p style={styles.postDescription}>{post.description}</p>
-                <p><strong>Tags:</strong> {post.tags}</p>
-                <p style={styles.postHelpType}>
-                  <strong>{post.is_paid ? 'Paid' : 'Free'} Help</strong>
-                </p>
+                <p><strong>Tagi:</strong> {post.tags}</p>
+              </div>
+              <div
+                style={{
+                  ...styles.postHelpType,
+                  backgroundColor: post.is_paid ? '#ccc' : '#e0e0e0',
+                }}
+              >
+                <strong>{post.is_paid ? 'Płatne Wsparcie' : 'Darmowe Wsparcie'}</strong>
+              </div>
+              <div style={styles.buttonContainer}>
+                <button
+                  style={styles.viewPostButton}
+                  onClick={() => navigate(`/post/${post.id}`)}
+                >
+                  Zobacz Szczegóły
+                </button>
               </div>
             </div>
           ))
         ) : (
-          <p>No posts available.</p>
+          <p style={styles.noPosts}>Brak dostępnej pomocy.</p>
         )}
       </div>
     </div>
@@ -66,8 +81,15 @@ const styles = {
     textAlign: 'center',
     margin: '0 auto',
     padding: '20px',
-    maxWidth: '100%',
-    backgroundColor: '#f9f9f9',
+    maxWidth: '1200px',
+    backgroundColor: '',
+    borderRadius: '10px',
+  },
+  title: {
+    color: '#333',
+    fontSize: '2rem',
+    marginBottom: '20px',
+    fontWeight: 'bold',
   },
   filterContainer: {
     display: 'flex',
@@ -83,6 +105,7 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     fontSize: '16px',
+    transition: 'background-color 0.3s ease',
   },
   posts: {
     display: 'grid',
@@ -95,6 +118,7 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     textAlign: 'left',
+    transition: 'transform 0.2s ease',
   },
   imageContainer: {
     marginBottom: '15px',
@@ -123,7 +147,31 @@ const styles = {
   postHelpType: {
     fontSize: '1rem',
     color: '#333',
-    marginBottom: '10px',
+    textAlign: 'center',
+    padding: '10px 0',
+    borderRadius: '10px',
+    width: '100%',
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    textAlign: 'center',
+    marginTop: '10px',
+  },
+  viewPostButton: {
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '12px 15px',
+    width: '100%',
+    cursor: 'pointer',
+    fontSize: '16px',
+    transition: 'background-color 0.3s ease',
+  },
+  noPosts: {
+    color: '#555',
+    fontSize: '1rem',
+    marginTop: '20px',
   },
 };
 
