@@ -6,11 +6,10 @@ function Home({ user }) {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    // Fetch posts from backend
     const fetchPosts = async () => {
       try {
         const response = await axios.get('http://127.0.0.1:5000/posts');
-        setPosts(response.data); // Save posts data to state
+        setPosts(response.data);
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
@@ -19,111 +18,104 @@ function Home({ user }) {
   }, []);
 
   return (
-    <div className="home-container" style={styles.container}>
-      <header style={styles.header}>
-        <div style={styles.headerOverlay}></div> {/* Overlay */}
-        <div style={styles.headerContent}>
-          <h1>ConnectCare – Łączymy serca, by pomagać</h1>
-          <p>
-            Łączymy serca i siły, by wspólnie tworzyć przestrzeń wsparcia, pomocy i troski.
-            Razem zmieniamy świat na bardziej życzliwy i otwarty dla każdego.
+    <div style={styles.container}>
+      {/* Hero Section */}
+      <section style={styles.hero}>
+        <div style={styles.heroContent}>
+          <h1 style={styles.heroTitle}>ConnectCare – Łączymy Serca, By Pomagać</h1>
+          <p style={styles.heroDescription}>
+            Znajdź wsparcie lub zostań wolontariuszem. Tworzymy przestrzeń pełną troski, zaufania i współpracy.
           </p>
-        </div>
-      </header>
-
-      {/* Sekcja 1 */}
-      <section style={styles.section}>
-        <h2 style={styles.heading}>Osoby potrzebujące twojej pomocy!</h2>
-        <div style={styles.posts}>
-          {posts.length > 0 ? (
-            posts.map(post => (
-              <div key={post.id} style={styles.postCard}>
-                <div style={styles.imageContainer}>
-                  {post.image_url && (
-                    <img
-                      src={post.image_url}
-                      alt={post.title}
-                      style={styles.image}
-                    />
-                  )}
-                </div>
-                <div style={styles.textContent}>
-                  <h3 style={styles.postTitle}>{post.title}</h3>
-                  <p style={styles.postDescription}>{post.description}</p>
-                  <p style={styles.postTags}><strong>Tags:</strong> {post.tags}</p>
-                  <p
-                    style={{
-                      ...styles.postHelpType,
-                      backgroundColor: post.is_paid ? '#d3d3d3' : '#d3d3d3', // Gray background for both
-                    }}
-                  >
-                    <strong>
-                      {post.is_paid ? 'Odpłatna pomoc' : 'Darmowa pomoc'}
-                    </strong>
-                  </p>
-                  <Link to={`/post/${post.id}`}>
-                    <button style={styles.viewButton}>Jestem zainteresowany!</button>
-                  </Link>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>No posts available.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Nowa Sekcja: Zalety */}
-      <section style={styles.infoSection}>
-        <div style={styles.infoContent}>
-          <h2 style={styles.heading}>Dlaczego warto dołączyć?</h2>
-          <ul style={styles.list}>
-            <li>Intuicyjna platforma – łatwa w obsłudze.</li>
-            <li>Połączenie z ludźmi z całego świata.</li>
-            <li>Możliwość dzielenia się doświadczeniem i wiedzą.</li>
-            <li>Budowanie społeczności opartej na wsparciu i trosce.</li>
-          </ul>
-        </div>
-        <div style={styles.imageContainer}>
-          <img src="/img/benefits.jpg" alt="Benefits" style={styles.infoImage} />
-        </div>
-      </section>
-
-      {/* Nowa Sekcja: Kontakt */}
-      <section style={styles.contactSection}>
-        <h2 style={styles.heading}>Skontaktuj się z nami</h2>
-        <p style={styles.contactText}>
-          Masz pytania? Chcesz dowiedzieć się więcej o naszej platformie? Skontaktuj się z nami!
-        </p>
-        <p style={styles.contactInfo}><strong>Email:</strong> support@connectcare.com</p>
-        <p style={styles.contactInfo}><strong>Telefon:</strong> +48 123 456 789</p>
-        <p style={styles.contactInfo}><strong>Adres:</strong> ul. Pomocna 12, Warszawa</p>
-      </section>
-
-      {/* Nowa Sekcja: Misja */}
-      <section style={styles.infoSectionReversed}>
-        <div style={styles.infoContent}>
-          <h2 style={styles.heading}>Nasza Misja</h2>
-          <p style={styles.akapit}>
-            ConnectCare powstało, by zbudować świat, w którym każdy ma szansę otrzymać pomoc w trudnej sytuacji.
-            Naszą misją jest łączenie ludzi o otwartych sercach, gotowych pomagać i wspierać się wzajemnie.
-          </p>
-        </div>
-        <div style={styles.imageContainer}>
-          <img src="/img/mission.jpg" alt="Our Mission" style={styles.infoImage} />
-        </div>
-      </section>
-
-      {user && user.role === 'Osoba potrzebująca' && (
-        <section style={styles.createPostSection}>
-          <Link to="/create_post">
-            <button style={styles.createPostButton}>Utwórz Post</button>
+          <Link to="/register">
+            <button style={styles.ctaButton}>Dołącz Teraz</button>
           </Link>
-        </section>
-      )}
+        </div>
+      </section>
 
+      {/* About Section */}
+      <section style={styles.about}>
+        <h2 style={styles.sectionTitle}>O Nas</h2>
+        <p style={styles.sectionDescription}>
+          ConnectCare to platforma łącząca osoby potrzebujące pomocy z wolontariuszami. 
+          Razem budujemy społeczność, która zmienia świat na lepsze.
+        </p>
+      </section>
+
+      {/* Featured Posts */}
+      <section style={styles.postsSection}>
+        <h2 style={styles.sectionTitle}>Najnowsze Posty</h2>
+        <div style={styles.postsGrid}>
+          {posts.slice(0, 8).map(post => (
+            <div key={post.id} style={styles.postCard}>
+              <img src={post.image_url} alt={post.title} style={styles.postImage} />
+              <h3 style={styles.postTitle}>{post.title}</h3>
+              <p style={styles.postDescription}>{post.description.substring(0, 100)}...</p>
+              <Link to={`/post/${post.id}`}>
+                <button style={styles.viewButton}>Zobacz Więcej</button>
+              </Link>
+            </div>
+          ))}
+        </div>
+        <Link to="/posts">
+          <button style={styles.browseButton}>Przeglądaj Wszystkie Posty</button>
+        </Link>
+      </section>
+
+      {/* How It Works Section */}
+      <section style={styles.howItWorks}>
+        <h2 style={styles.sectionTitle}>Jak To Działa?</h2>
+        <div style={styles.stepsGrid}>
+          <div style={styles.step}>
+            <h3 style={styles.stepTitle}>1. Zarejestruj się</h3>
+            <p style={styles.stepDescription}>Załóż konto i dołącz do naszej społeczności.</p>
+          </div>
+          <div style={styles.step}>
+            <h3 style={styles.stepTitle}>2. Utwórz Post</h3>
+            <p style={styles.stepDescription}>Dodaj swój post i opisz, czego potrzebujesz.</p>
+          </div>
+          <div style={styles.step}>
+            <h3 style={styles.stepTitle}>3. Odpowiedz na Post</h3>
+            <p style={styles.stepDescription}>Znajdź osobę, której chcesz pomóc.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
       <footer style={styles.footer}>
-        <p>© 2024 ConnectCare. All rights reserved.</p>
+        <div style={styles.footerContent}>
+          <div style={styles.footerSection}>
+            <img src="/logo.png" alt="ConnectCare" style={styles.logo} />
+            <p style={styles.footerText}>
+              ConnectCare to platforma stworzona, aby wspierać ludzi i budować trwałe więzi.
+            </p>
+          </div>
+          <div style={styles.footerSection}>
+            <h3 style={styles.footerTitle}>Podstrony</h3>
+            <ul style={styles.footerLinks}>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/posts">Posty</Link></li>
+              <li><Link to="/about">O nas</Link></li>
+              <li><Link to="/contact">Kontakt</Link></li>
+            </ul>
+          </div>
+          <div style={styles.footerSection}>
+            <h3 style={styles.footerTitle}>Kontakt</h3>
+            <p>Email: support@connectcare.com</p>
+            <p>Telefon: +48 123 456 789</p>
+            <p>Adres: ul. Pomocna 12, Warszawa</p>
+          </div>
+          <div style={styles.footerSection}>
+            <h3 style={styles.footerTitle}>Social Media</h3>
+            <div style={styles.socialLinks}>
+              <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
+              <a href="https://twitter.com" target="_blank" rel="noreferrer">Twitter</a>
+              <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
+            </div>
+          </div>
+        </div>
+        <div style={styles.footerBottom}>
+          <p>© 2024 ConnectCare. Wszystkie prawa zastrzeżone.</p>
+        </div>
       </footer>
     </div>
   );
@@ -131,188 +123,150 @@ function Home({ user }) {
 
 const styles = {
   container: {
-    fontFamily: 'poppins, sans-serif',
-    textAlign: 'center',
-    margin: '0 auto',
-    padding: '0px',
-    maxWidth: '100%',
+    fontFamily: 'Poppins, Arial, sans-serif',
     backgroundColor: '#f9f9f9',
-  },
-  header: {
-    backgroundImage: 'url("/img/header.jpg")',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    padding: '30px 20px',
-    color: '#fff',
-    minHeight: '500px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  akapit: {
-    textAlign: 'justify',
-  },
-  headerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Overlay for better text visibility
-    zIndex: 1,
-  },
-  headerContent: {
-    zIndex: 2, // Above overlay
-    textAlign: 'center',
-  },
-  section: {
-    marginTop: '40px',
-    textAlign: 'center',
-  },
-  heading: {
-    fontSize: '2.5rem',
-    fontWeight: 'bold',
-    marginBottom: '30px',
     color: '#333',
   },
-  posts: {
+  hero: {
+    backgroundColor: '#007bff',
+    color: '#fff',
+    textAlign: 'center',
+    padding: '80px 20px',
+  },
+  heroContent: {
+    maxWidth: '800px',
+    margin: '0 auto',
+  },
+  heroTitle: {
+    fontSize: '3rem',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+  },
+  heroDescription: {
+    fontSize: '1.5rem',
+    marginBottom: '30px',
+  },
+  ctaButton: {
+    backgroundColor: '#0056b3',
+    color: '#fff',
+    padding: '15px 30px',
+    fontSize: '1.2rem',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
+  },
+  about: {
+    padding: '50px 20px',
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: '2.5rem',
+    marginBottom: '20px',
+  },
+  sectionDescription: {
+    fontSize: '1.2rem',
+    lineHeight: '1.6',
+  },
+  postsSection: {
+    padding: '50px 20px',
+    textAlign: 'center',
+  },
+  postsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
     gap: '20px',
-    marginTop: '20px',
   },
   postCard: {
-    padding: '20px',
     backgroundColor: '#fff',
     borderRadius: '10px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    textAlign: 'left',
-    transition: 'transform 0.3s ease-in-out',
-  },
-  imageContainer: {
-    marginBottom: '15px',
-    width: '100%',
-    float: 'left',
-    marginRight: '20px',
-  },
-  infoSection: {
-    backgroundColor: '#f1f1f1',
-    padding: '40px 50px',
-    marginTop: '50px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  infoSectionReversed: {
-    backgroundColor: '#fff',
-    padding: '40px 50px',
-    marginTop: '50px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row-reverse',
-  },
-  infoContent: {
     textAlign: 'center',
-    maxWidth: '50%',
-    margin: '0 auto',
-    padding: '50px',
+    padding: '20px',
   },
-  infoImage: {
+  postImage: {
     width: '100%',
-    maxWidth: '100%',
-    marginTop: '20px',
-    borderRadius: '8px',
-  },
-  image: {
-    width: '100%',
-    height: 'auto',
-    maxHeight: 'auto',
-    borderRadius: '8px',
+    height: '150px',
     objectFit: 'cover',
-  },
-  textContent: {
-    textAlign: 'left',
+    borderRadius: '10px',
   },
   postTitle: {
-    color: '#333',
     fontSize: '1.5rem',
-    fontWeight: 'bold',
-    marginBottom: '10px',
-    textAlign: 'center',
+    margin: '15px 0',
   },
   postDescription: {
     fontSize: '1rem',
-    color: '#555',
-    marginBottom: '10px',
-    textAlign: 'justify',
-  },
-  postTags: {
-    fontSize: '1rem',
-    color: '#555',
-    marginBottom: '10px',
-    textAlign: 'justify',
-  },
-  postHelpType: {
-    fontSize: '1rem',
-    color: '#333',
-    textAlign: 'center',
-    padding: '5px 10px',
-    borderRadius: '5px',
-    display: 'inline-block',
-    marginBottom: '10px',
+    marginBottom: '15px',
   },
   viewButton: {
     backgroundColor: '#007bff',
     color: '#fff',
-    border: 'none',
-    borderRadius: '5px',
     padding: '10px 20px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    marginTop: '10px',
-  },
-  createPostButton: {
-    backgroundColor: '#28a745',
-    color: '#fff',
-    border: 'none',
     borderRadius: '5px',
-    padding: '10px 20px',
+    border: 'none',
     cursor: 'pointer',
-    fontSize: '16px',
-    marginTop: '20px',
   },
-  footer: {
-    marginTop: '50px',
-    padding: '20px',
-    backgroundColor: '#f5f5f5',
-    borderRadius: '10px',
-    fontSize: '14px',
-    color: '#777',
-  },
-  createPostSection: {
+  browseButton: {
     marginTop: '30px',
+    backgroundColor: '#0056b3',
+    color: '#fff',
+    padding: '15px 30px',
+    fontSize: '1.2rem',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
   },
-  contactSection: {
+  howItWorks: {
     backgroundColor: '#f1f1f1',
-    padding: '40px 20px',
-    marginTop: '50px',
+    padding: '50px 20px',
     textAlign: 'center',
   },
-  contactText: {
-    fontSize: '1rem',
-    marginBottom: '20px',
+  stepsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '20px',
+    marginTop: '20px',
   },
-  contactInfo: {
-    fontSize: '1rem',
+  step: {
+    backgroundColor: '#fff',
+    padding: '20px',
+    borderRadius: '10px',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  },
+  stepTitle: {
+    fontSize: '1.5rem',
     marginBottom: '10px',
   },
-  list: {
-    textAlign: 'left',
-    marginLeft: '20%',
-    marginRight: '20%',
+  footer: {
+    backgroundColor: '#333',
+    color: '#fff',
+    padding: '50px 20px',
+  },
+  footerContent: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '20px',
+  },
+  footerSection: {
+    textAlign: 'center',
+  },
+  footerTitle: {
+    fontSize: '1.5rem',
+    marginBottom: '10px',
+  },
+  footerLinks: {
+    listStyle: 'none',
+    padding: 0,
+    fontSize: '1rem',
+  },
+  socialLinks: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '10px',
+  },
+  footerBottom: {
+    textAlign: 'center',
+    marginTop: '20px',
+    fontSize: '0.9rem',
   },
 };
 
