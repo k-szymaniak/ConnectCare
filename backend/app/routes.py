@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User, Post
+from .models import User, Post, Comment
 from . import db
 from datetime import datetime
 
@@ -14,25 +14,21 @@ def register():
         email = data.get('email')
         name = data.get('name')
         password = data.get('password')
-        role = data.get('role', 'Osoba potrzebująca')  # Domyślnie 'Osoba potrzebująca'
+        role = data.get('role', 'Osoba potrzebująca')
         description = data.get('description', '')
-        birth_date_str = data.get('birth_date')  # Data w formacie YYYY-MM-DD
+        birth_date_str = data.get('birth_date')
 
-        # Konwersja daty z ciągu znaków na obiekt datetime.date
         birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date() if birth_date_str else None
 
         if not email or not name or not password:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Sprawdź, czy użytkownik już istnieje
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
             return jsonify({"error": "User already exists"}), 400
 
-        # Haszowanie hasła
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
-        # Tworzenie nowego użytkownika
         new_user = User(
             email=email,
             name=name,
@@ -51,7 +47,6 @@ def register():
         print(f"Error during registration: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
-
 # Logowanie użytkownika
 @main.route('/login', methods=['POST'])
 def login():
@@ -63,16 +58,10 @@ def login():
         if not email or not password:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Sprawdź, czy użytkownik istnieje
         user = User.query.filter_by(email=email).first()
-        if not user:
+        if not user or not check_password_hash(user.password, password):
             return jsonify({"error": "Invalid email or password"}), 401
 
-        # Weryfikacja hasła
-        if not check_password_hash(user.password, password):
-            return jsonify({"error": "Invalid email or password"}), 401
-
-        # Zwróć dane użytkownika
         return jsonify({
             "message": "Login successful",
             "user": {
@@ -89,8 +78,7 @@ def login():
         print(f"Error during login: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
-
-# Tworzenie posta (tylko dla osób potrzebujących pomocy)
+# Tworzenie posta
 @main.route('/create_post', methods=['POST'])
 def create_post():
     try:
@@ -102,15 +90,10 @@ def create_post():
         is_paid = data.get('is_paid', False)
         tags = data.get('tags', "")
 
-        # Sprawdź, czy użytkownik o danej roli może dodać post
         user = User.query.get(user_id)
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        if user.role != 'Osoba potrzebująca':
-            return jsonify({"error": "Only users with 'Osoba potrzebująca' role can create posts"}), 403
-
-        # Tworzenie nowego posta
         new_post = Post(
             title=title,
             description=description,
@@ -128,19 +111,17 @@ def create_post():
         print(f"Error during post creation: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
-
-# Pobranie wszystkich postów z filtrowaniem po płatnych i darmowych
+# Pobranie wszystkich postów
 @main.route('/posts', methods=['GET'])
 def get_posts():
     try:
-        # Odbieranie parametru 'filter' z query string
-        filter_type = request.args.get('filter', 'all')  # Domyślnie wszystkie posty
+        filter_type = request.args.get('filter', 'all')
         if filter_type == 'paid':
-            posts = Post.query.filter_by(is_paid=True).all()  # Filtracja tylko płatnych postów
+            posts = Post.query.filter_by(is_paid=True).all()
         elif filter_type == 'free':
-            posts = Post.query.filter_by(is_paid=False).all()  # Filtracja tylko darmowych postów
+            posts = Post.query.filter_by(is_paid=False).all()
         else:
-            posts = Post.query.all()  # Wszystkie posty, jeśli nie podano filtra
+            posts = Post.query.all()
 
         return jsonify([{
             "id": post.id,
@@ -156,8 +137,96 @@ def get_posts():
         print(f"Error during fetching posts: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
+# Pobranie szczegółów posta po ID
+@main.route('/posts/<int:post_id>', methods=['GET'])
+def get_post(post_id):
+    try:
+        post = Post.query.get(post_id)
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
 
-# Pobranie postów użytkownika (po ID)
+        return jsonify({
+            "id": post.id,
+            "title": post.title,
+            "description": post.description,
+            "image_url": post.image_url,
+            "is_paid": post.is_paid,
+            "tags": post.tags,
+            "user_id": post.user_id
+        }), 200
+
+    except Exception as e:
+        print(f"Error during fetching post details: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
+# Pobranie komentarzy dla konkretnego posta
+@main.route('/comments/<int:post_id>', methods=['GET'])
+def get_comments(post_id):
+    try:
+        post = Post.query.get(post_id)
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
+
+        comments = Comment.query.filter_by(post_id=post_id).all()
+
+        result = []
+        for comment in comments:
+            if comment.user_id == post.user_id or comment.user_id == comment.user_id:
+                # Twórca posta lub twórca komentarza widzi pełną treść
+                result.append({
+                    "id": comment.id,
+                    "content": comment.content,
+                    "user_name": comment.user_name
+                })
+            else:
+                # Inni użytkownicy widzą tylko nick twórcy komentarza
+                result.append({
+                    "id": comment.id,
+                    "content": "Komentarz jest ukryty",
+                    "user_name": comment.user_name
+                })
+
+        return jsonify(result), 200
+
+    except Exception as e:
+        print(f"Error during fetching comments: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
+# Dodanie komentarza do posta
+@main.route('/comments', methods=['POST'])
+def add_comment():
+    try:
+        data = request.json
+        post_id = data.get('post_id')
+        user_id = data.get('user_id')
+        content = data.get('content')
+
+        if not post_id or not user_id or not content:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        post = Post.query.get(post_id)
+        if not post:
+            return jsonify({"error": "Post not found"}), 404
+
+        new_comment = Comment(content=content, post_id=post_id, user_id=user_id, user_name=user.name)
+        db.session.add(new_comment)
+        db.session.commit()
+
+        return jsonify({
+            "id": new_comment.id,
+            "content": new_comment.content,
+            "user_name": new_comment.user_name
+        }), 201
+
+    except Exception as e:
+        print(f"Error during adding comment: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
+# Pobranie postów użytkownika po ID
 @main.route('/user_posts/<int:user_id>', methods=['GET'])
 def get_user_posts(user_id):
     try:
@@ -172,7 +241,9 @@ def get_user_posts(user_id):
             "description": post.description,
             "image_url": post.image_url,
             "is_paid": post.is_paid,
-            "tags": post.tags
+            "tags": post.tags,
+            "user_id": post.user_id,
+            "created_at": post.created_at
         } for post in posts]), 200
 
     except Exception as e:

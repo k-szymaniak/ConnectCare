@@ -11,8 +11,10 @@ class User(db.Model):
     description = db.Column(db.Text, nullable=True)  # Opcjonalny opis
     birth_date = db.Column(db.Date, nullable=True)  # Data urodzenia
 
-    # Relacja z Post, backref do 'user_posts' w User
-    posts = db.relationship('Post', backref='author', lazy=True)  # 'author' w Post
+    # Relacja z Post
+    posts = db.relationship('Post', backref='author', lazy=True)
+    # Relacja z Comment
+    comments = db.relationship('Comment', backref='comment_author', lazy=True)
 
 
 class Post(db.Model):
@@ -25,5 +27,14 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    # Relacja do User, backref do 'posts' w Post
-    user = db.relationship('User', backref=db.backref('user_posts', lazy=True))  # 'user_posts' w User
+    # Relacja z Comment
+    comments = db.relationship('Comment', backref='related_post', lazy=True)
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)  # Treść komentarza
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # Data stworzenia komentarza
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)  # Relacja z Post
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Relacja z User
+    user_name = db.Column(db.String(100), nullable=False)  # Nick osoby komentującej

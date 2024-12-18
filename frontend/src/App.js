@@ -8,6 +8,8 @@ import Register from './components/Register';
 import Login from './components/Login';
 import PostList from './components/PostList';  // Nowy import
 import CreatePost from './components/AddPost';  // Nowy import
+import PostDetail from './components/PostDetail';
+
 
 function App() {
   // Inicjalizacja stanu użytkownika z Local Storage
@@ -36,6 +38,9 @@ function App() {
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/posts" element={<PostList />} /> {/* Nowa trasa dla postów */}
         <Route path="/create_post" element={<CreatePost user={user} />} /> {/* Nowa trasa dla tworzenia postu */}
+        <Route path="/post/:id" element={<PostDetail user={user} />} /> {/* Przekazujemy user */}
+
+        
       </Routes>
     </Router>
   );
