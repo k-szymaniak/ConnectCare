@@ -4,17 +4,17 @@ import { useNavigate } from 'react-router-dom';
 
 function PostList() {
   const [posts, setPosts] = useState([]);
-  const [filter, setFilter] = useState('all'); // Domyślnie wszystkie posty
+  const [filter, setFilter] = useState('all'); // Domyślny filtr
   const navigate = useNavigate();
 
-  // Fetch posts from API with filter
+  // Pobierz posty z API na podstawie filtra
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:5000/posts?filter=${filter}`);
         setPosts(response.data);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Błąd podczas pobierania postów:', error);
       }
     };
     fetchPosts();
@@ -22,17 +22,28 @@ function PostList() {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Wszystkie Pomoc</h2>
+      <header style={styles.header}>
+        <h1 style={styles.headerTitle}>Przeglądaj Dostępną Pomoc</h1>
+        <p style={styles.headerSubtitle}>Znajdź potrzebną pomoc lub zaoferuj swoje wsparcie już dziś.</p>
+      </header>
 
-      {/* Filtry */}
       <div style={styles.filterContainer}>
-        <button style={styles.filterButton} onClick={() => setFilter('all')}>
+        <button
+          style={filter === 'all' ? styles.activeFilterButton : styles.filterButton}
+          onClick={() => setFilter('all')}
+        >
           Wszystkie Pomoc
         </button>
-        <button style={styles.filterButton} onClick={() => setFilter('paid')}>
+        <button
+          style={filter === 'paid' ? styles.activeFilterButton : styles.filterButton}
+          onClick={() => setFilter('paid')}
+        >
           Płatna Pomoc
         </button>
-        <button style={styles.filterButton} onClick={() => setFilter('free')}>
+        <button
+          style={filter === 'free' ? styles.activeFilterButton : styles.filterButton}
+          onClick={() => setFilter('free')}
+        >
           Darmowa Pomoc
         </button>
       </div>
@@ -52,25 +63,41 @@ function PostList() {
               <div
                 style={{
                   ...styles.postHelpType,
-                  backgroundColor: post.is_paid ? '#ccc' : '#e0e0e0',
+                  backgroundColor: post.is_paid ? '#fff5e6' : '#e6ffe6',
                 }}
               >
-                <strong>{post.is_paid ? 'Płatne Wsparcie' : 'Darmowe Wsparcie'}</strong>
+                <strong>{post.is_paid ? 'Płatna Pomoc' : 'Darmowa Pomoc'}</strong>
               </div>
-              <div style={styles.buttonContainer}>
-                <button
-                  style={styles.viewPostButton}
-                  onClick={() => navigate(`/post/${post.id}`)}
-                >
-                  Zobacz Szczegóły
-                </button>
-              </div>
+              <button
+                style={styles.viewPostButton}
+                onClick={() => navigate(`/post/${post.id}`)}
+              >
+                Zobacz Szczegóły
+              </button>
             </div>
           ))
         ) : (
-          <p style={styles.noPosts}>Brak dostępnej pomocy.</p>
+          <p style={styles.noPosts}>Brak dostępnych ofert pomocy.</p>
         )}
       </div>
+
+      <footer style={styles.footer}>
+        <div style={styles.footerContainer}>
+          <div style={styles.logoSection}>
+            <h2 style={styles.logo}>ConnectCare</h2>
+          </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Kontakt</strong></p>
+            <p>Email: support@connectcare.com</p>
+            <p>Telefon: +48 123 456 789</p>
+          </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Śledź nas</strong></p>
+            <p>Facebook | Twitter | LinkedIn</p>
+          </div>
+        </div>
+        <p style={styles.footerCopy}>© 2024 ConnectCare. Wszelkie prawa zastrzeżone.</p>
+      </footer>
     </div>
   );
 }
@@ -80,21 +107,30 @@ const styles = {
     fontFamily: 'Arial, sans-serif',
     textAlign: 'center',
     margin: '0 auto',
-    padding: '20px',
-    maxWidth: '1200px',
-    backgroundColor: '',
+    padding: '0px',
+    maxWidth: '100%',
+    backgroundColor: '#f9f9f9',
     borderRadius: '10px',
   },
-  title: {
-    color: '#333',
-    fontSize: '2rem',
-    marginBottom: '20px',
+  header: {
+    textAlign: 'center',
+    padding: '30px 20px',
+    
+    
+    borderRadius: '0px',
+  },
+  headerTitle: {
+    fontSize: '2.5rem',
     fontWeight: 'bold',
+    marginBottom: '10px',
+  },
+  headerSubtitle: {
+    fontSize: '1.2rem',
   },
   filterContainer: {
     display: 'flex',
     justifyContent: 'center',
-    marginBottom: '20px',
+    margin: '20px 0',
   },
   filterButton: {
     backgroundColor: '#007bff',
@@ -105,7 +141,16 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     fontSize: '16px',
-    transition: 'background-color 0.3s ease',
+  },
+  activeFilterButton: {
+    backgroundColor: '#0056b3',
+    color: '#fff',
+    padding: '10px 20px',
+    margin: '5px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
   },
   posts: {
     display: 'grid',
@@ -152,10 +197,7 @@ const styles = {
     borderRadius: '10px',
     width: '100%',
     fontWeight: 'bold',
-  },
-  buttonContainer: {
-    textAlign: 'center',
-    marginTop: '10px',
+    margin: '10px 0',
   },
   viewPostButton: {
     backgroundColor: '#007bff',
@@ -166,12 +208,36 @@ const styles = {
     width: '100%',
     cursor: 'pointer',
     fontSize: '16px',
-    transition: 'background-color 0.3s ease',
   },
   noPosts: {
     color: '#555',
     fontSize: '1rem',
     marginTop: '20px',
+  },
+  footer: {
+    marginTop: '30px',
+    padding: '20px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    
+  },
+  footerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 20px',
+  },
+  logoSection: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+  },
+  footerLinks: {
+    textAlign: 'left',
+  },
+  footerCopy: {
+    textAlign: 'center',
+    marginTop: '10px',
+    fontSize: '0.9rem',
   },
 };
 

@@ -23,25 +23,27 @@ function Navbar({ user, setUser }) {
     <nav style={styles.navbar}>
       <div style={styles.logoContainer}>
         <Link to="/" style={styles.logoLink}>
-          <h1 style={styles.logo}>Connect <span style={styles.logoHighlight}>Care</span></h1>
+          <h1 style={styles.logo}>
+            Connect <span style={styles.logoHighlight}>Care</span>
+          </h1>
         </Link>
       </div>
 
       <div style={styles.navLinksContainer}>
         <div style={styles.hamburger} onClick={toggleMobileMenu}>
-          <FaBars size={30} />
+          <FaBars size={30} style={styles.icon} />
         </div>
 
         {(isMobileMenuOpen || !isMobileMenuOpen) && (
           <div style={isMobileMenuOpen ? styles.mobileMenu : styles.desktopMenu}>
             <Link to="/" style={styles.link}>Home</Link>
-            <Link to="/all_posts" style={styles.link}>Wszystkie Pomoc</Link>
+            <Link to="/posts" style={styles.link}>Wszystkie Pomoc</Link>
             <Link to="/volunteers" style={styles.link}>Wolontariusze</Link>
             <Link to="/contact" style={styles.link}>Kontakt</Link>
             {user ? (
               <div style={styles.userMenu}>
                 <button style={styles.userButton} onClick={toggleMenu}>
-                  {user.name} <MdArrowDropDown />
+                  {user.name} <MdArrowDropDown style={styles.icon} />
                 </button>
                 {isMenuOpen && (
                   <div style={styles.dropdownMenu}>
@@ -68,10 +70,10 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '10px 20px',
-    backgroundColor: '#f8f9fa',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-    fontFamily: 'Arial, sans-serif',
+    padding: '15px 30px',
+    backgroundColor: 'rgb(0, 123, 255)', // Bright blue background
+    fontFamily: 'Poppins, sans-serif',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   },
   logoContainer: {
     display: 'flex',
@@ -79,12 +81,12 @@ const styles = {
   },
   logo: {
     margin: 0,
-    fontSize: '24px',
+    fontSize: '28px',
     fontWeight: 'bold',
-    color: '#007bff',
+    color: '#ffffff', // White text
   },
   logoHighlight: {
-    color: '#0056b3',
+    color: '#000000', // Black "Care"
   },
   logoLink: {
     textDecoration: 'none',
@@ -96,18 +98,21 @@ const styles = {
   },
   link: {
     textDecoration: 'none',
-    color: '#333',
+    color: '#ffffff', // White text
     fontSize: '18px',
-    padding: '5px 10px',
+    padding: '8px 15px',
     borderRadius: '5px',
     transition: 'background-color 0.3s ease',
   },
   linkHover: {
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#004494',
   },
   hamburger: {
     display: 'none',
     cursor: 'pointer',
+  },
+  icon: {
+    color: '#ffffff',
   },
   mobileMenu: {
     display: 'flex',
@@ -116,8 +121,7 @@ const styles = {
     top: '60px',
     left: '0',
     width: '100%',
-    backgroundColor: '#fff',
-    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgb(0, 123, 255)',
     padding: '10px',
     zIndex: '1000',
   },
@@ -132,14 +136,14 @@ const styles = {
     background: 'none',
     border: 'none',
     fontSize: '18px',
-    color: '#333',
+    color: '#ffffff',
     cursor: 'pointer',
   },
   dropdownMenu: {
     position: 'absolute',
     top: '40px',
     right: '0',
-    backgroundColor: '#fff',
+    backgroundColor: '#004494',
     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
     borderRadius: '5px',
     overflow: 'hidden',
@@ -148,7 +152,7 @@ const styles = {
     display: 'block',
     padding: '10px 15px',
     textDecoration: 'none',
-    color: '#333',
+    color: '#ffffff',
     fontSize: '16px',
   },
   authButtons: {
@@ -157,16 +161,17 @@ const styles = {
   },
   loginButton: {
     textDecoration: 'none',
-    color: '#fff',
-    backgroundColor: '#007bff',
+    color: 'rgb(0, 123, 255)', // Blue text
+    backgroundColor: '#ffffff', // White background
     padding: '8px 15px',
     borderRadius: '5px',
     fontSize: '16px',
+    border: '1px solid rgb(0, 123, 255)',
   },
   registerButton: {
     textDecoration: 'none',
-    color: '#fff',
-    backgroundColor: '#0056b3',
+    color: '#ffffff',
+    backgroundColor: '#004494',
     padding: '8px 15px',
     borderRadius: '5px',
     fontSize: '16px',
