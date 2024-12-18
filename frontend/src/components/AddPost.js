@@ -11,9 +11,8 @@ function AddPost({ user }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    // Basic validation
     if (!title || !description) {
-      setMessage("Title and description are required.");
+      setMessage("Tytuł i opis są wymagane.");
       return;
     }
 
@@ -30,20 +29,25 @@ function AddPost({ user }) {
       });
       setMessage(response.data.message);
       setLoading(false);
+      setTitle('');
+      setDescription('');
+      setImageUrl('');
+      setIsPaid(false);
+      setTags('');
     } catch (error) {
-      console.error("Error during post creation:", error.response || error.message);
-      setMessage(error.response?.data?.error || 'An unexpected error occurred');
+      console.error("Błąd podczas tworzenia posta:", error.response || error.message);
+      setMessage(error.response?.data?.error || 'Wystąpił nieoczekiwany błąd.');
       setLoading(false);
     }
   };
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Create Post</h2>
+      <h2 style={styles.title}>Dodaj Nowy Post</h2>
       {message && <p style={styles.message}>{message}</p>}
       <form style={styles.form}>
         <div style={styles.inputGroup}>
-          <label>Title:</label>
+          <label style={styles.label}>Tytuł:</label>
           <input
             type="text"
             value={title}
@@ -53,16 +57,16 @@ function AddPost({ user }) {
           />
         </div>
         <div style={styles.inputGroup}>
-          <label>Description:</label>
+          <label style={styles.label}>Opis:</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            style={styles.input}
+            style={styles.textarea}
           />
         </div>
         <div style={styles.inputGroup}>
-          <label>Image URL:</label>
+          <label style={styles.label}>URL Obrazu:</label>
           <input
             type="text"
             value={imageUrl}
@@ -71,15 +75,16 @@ function AddPost({ user }) {
           />
         </div>
         <div style={styles.inputGroup}>
-          <label>Is Paid:</label>
+          <label style={styles.label}>Płatna pomoc:</label>
           <input
             type="checkbox"
             checked={isPaid}
             onChange={() => setIsPaid(!isPaid)}
+            style={styles.checkbox}
           />
         </div>
         <div style={styles.inputGroup}>
-          <label>Tags (comma separated):</label>
+          <label style={styles.label}>Tagi (oddzielone przecinkami):</label>
           <input
             type="text"
             value={tags}
@@ -87,8 +92,13 @@ function AddPost({ user }) {
             style={styles.input}
           />
         </div>
-        <button type="button" onClick={handleSubmit} style={styles.button} disabled={loading}>
-          {loading ? 'Submitting...' : 'Submit'}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          style={styles.button}
+          disabled={loading}
+        >
+          {loading ? 'Trwa przesyłanie...' : 'Dodaj Post'}
         </button>
       </form>
     </div>
@@ -97,18 +107,21 @@ function AddPost({ user }) {
 
 const styles = {
   container: {
-    maxWidth: '500px',
+    maxWidth: '600px',
     margin: '50px auto',
-    padding: '20px',
-    border: '1px solid #ccc',
+    padding: '30px',
+    border: '1px solid #ddd',
     borderRadius: '10px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#f9f9f9',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#ffffff',
+    fontFamily: 'Arial, sans-serif',
   },
   title: {
     textAlign: 'center',
-    color: '#007bff',
+    fontSize: '24px',
+    fontWeight: 'bold',
     marginBottom: '20px',
+    color: '#333',
   },
   form: {
     display: 'flex',
@@ -117,26 +130,54 @@ const styles = {
   inputGroup: {
     marginBottom: '15px',
   },
+  label: {
+    fontWeight: 'bold',
+    marginBottom: '5px',
+    display: 'block',
+    fontSize: '16px',
+  },
   input: {
     width: '100%',
     padding: '10px',
     border: '1px solid #ccc',
     borderRadius: '5px',
     fontSize: '16px',
+    boxSizing: 'border-box',
+  },
+  textarea: {
+    width: '100%',
+    padding: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    fontSize: '16px',
+    boxSizing: 'border-box',
+    height: '120px',
+    resize: 'none',
+  },
+  checkbox: {
+    marginLeft: '10px',
+    transform: 'scale(1.5)',
   },
   button: {
     backgroundColor: '#007bff',
     color: '#fff',
     border: 'none',
     borderRadius: '5px',
-    padding: '10px',
-    cursor: 'pointer',
+    padding: '10px 20px',
     fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    marginTop: '10px',
+    transition: 'background-color 0.3s ease',
+  },
+  buttonHover: {
+    backgroundColor: '#0056b3',
   },
   message: {
     textAlign: 'center',
-    marginTop: '10px',
+    margin: '10px 0',
     color: '#d9534f',
+    fontWeight: 'bold',
   },
 };
 
