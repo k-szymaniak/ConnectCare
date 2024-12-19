@@ -82,40 +82,21 @@ function Home({ user }) {
 
       {/* Footer */}
       <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <div style={styles.footerSection}>
-            <img src="/logo.png" alt="ConnectCare" style={styles.logo} />
-            <p style={styles.footerText}>
-              ConnectCare to platforma stworzona, aby wspierać ludzi i budować trwałe więzi.
-            </p>
+        <div style={styles.footerContainer}>
+          <div style={styles.logoSection}>
+            <h2 style={styles.logo}>ConnectCare</h2>
           </div>
-          <div style={styles.footerSection}>
-            <h3 style={styles.footerTitle}>Podstrony</h3>
-            <ul style={styles.footerLinks}>
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/posts">Posty</Link></li>
-              <li><Link to="/about">O nas</Link></li>
-              <li><Link to="/contact">Kontakt</Link></li>
-            </ul>
-          </div>
-          <div style={styles.footerSection}>
-            <h3 style={styles.footerTitle}>Kontakt</h3>
+          <div style={styles.footerLinks}>
+            <p><strong>Kontakt</strong></p>
             <p>Email: support@connectcare.com</p>
             <p>Telefon: +48 123 456 789</p>
-            <p>Adres: ul. Pomocna 12, Warszawa</p>
           </div>
-          <div style={styles.footerSection}>
-            <h3 style={styles.footerTitle}>Social Media</h3>
-            <div style={styles.socialLinks}>
-              <a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a>
-              <a href="https://twitter.com" target="_blank" rel="noreferrer">Twitter</a>
-              <a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a>
-            </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Śledź nas</strong></p>
+            <p>Facebook | Twitter | LinkedIn</p>
           </div>
         </div>
-        <div style={styles.footerBottom}>
-          <p>© 2024 ConnectCare. Wszystkie prawa zastrzeżone.</p>
-        </div>
+        <p style={styles.footerCopy}>© 2024 ConnectCare. Wszelkie prawa zastrzeżone.</p>
       </footer>
     </div>
   );
@@ -237,35 +218,27 @@ const styles = {
     marginBottom: '10px',
   },
   footer: {
-    backgroundColor: '#333',
+    marginTop: '50px',
+    padding: '20px',
+    backgroundColor: '#007bff',
     color: '#fff',
-    padding: '50px 20px',
   },
-  footerContent: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '20px',
+  footerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 20px',
   },
-  footerSection: {
-    textAlign: 'center',
-  },
-  footerTitle: {
+  logoSection: {
     fontSize: '1.5rem',
-    marginBottom: '10px',
+    fontWeight: 'bold',
   },
   footerLinks: {
-    listStyle: 'none',
-    padding: 0,
-    fontSize: '1rem',
+    textAlign: 'left',
   },
-  socialLinks: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '10px',
-  },
-  footerBottom: {
+  footerCopy: {
     textAlign: 'center',
-    marginTop: '20px',
+    marginTop: '10px',
     fontSize: '0.9rem',
   },
 };

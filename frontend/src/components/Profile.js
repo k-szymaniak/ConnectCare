@@ -12,7 +12,6 @@ function Profile({ user, setUser }) {
 
   useEffect(() => {
     if (user) {
-      // Fetch user's posts when the user is set
       const fetchPosts = async () => {
         try {
           const response = await axios.get(`http://127.0.0.1:5000/user_posts/${user.id}`);
@@ -34,7 +33,7 @@ function Profile({ user, setUser }) {
         birth_date: birthDate,
       });
 
-      setUser(response.data.user); // Update user state after editing
+      setUser(response.data.user);
       setMessage(response.data.message);
       setIsEditing(false);
     } catch (error) {
@@ -46,20 +45,32 @@ function Profile({ user, setUser }) {
   if (!user) {
     return (
       <div style={styles.container}>
-        <h2 style={styles.title}>Access Denied</h2>
-        <p>You need to log in to view this page.</p>
+        <h2 style={styles.title}>Brak dostępu</h2>
+        <p>Musisz się zalogować, aby zobaczyć tę stronę.</p>
       </div>
     );
   }
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>Profile Information</h2>
+      <div style={styles.profileHeader}>
+        <img src="/img/avatar.jpg" alt="User Avatar" style={styles.avatar} />
+        <h2 style={styles.profileName}>{user.name}</h2>
+        <div
+          style={{
+            ...styles.roleBadge,
+            backgroundColor: user.role === 'Wolontariusz' ? '#e6f7ff' : '#fff3cd',
+            color: user.role === 'Wolontariusz' ? '#007bff' : '#856404',
+          }}
+        >
+          {user.role}
+        </div>
+      </div>
       {message && <p style={styles.message}>{message}</p>}
       {isEditing ? (
         <form style={styles.form}>
           <div style={styles.inputGroup}>
-            <label>Name:</label>
+            <label>Imię:</label>
             <input
               type="text"
               value={name}
@@ -68,7 +79,7 @@ function Profile({ user, setUser }) {
             />
           </div>
           <div style={styles.inputGroup}>
-            <label>Role:</label>
+            <label>Rola:</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -79,7 +90,7 @@ function Profile({ user, setUser }) {
             </select>
           </div>
           <div style={styles.inputGroup}>
-            <label>Description:</label>
+            <label>Opis:</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -87,7 +98,7 @@ function Profile({ user, setUser }) {
             />
           </div>
           <div style={styles.inputGroup}>
-            <label>Birth Date:</label>
+            <label>Data urodzenia:</label>
             <input
               type="date"
               value={birthDate}
@@ -95,68 +106,96 @@ function Profile({ user, setUser }) {
               style={styles.input}
             />
           </div>
-          <button type="button" onClick={handleSave} style={styles.button}>
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            style={{ ...styles.button, backgroundColor: '#6c757d' }}
-          >
-            Cancel
-          </button>
+          <div style={styles.buttonGroup}>
+            <button type="button" onClick={handleSave} style={styles.button}>
+              Zapisz
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              style={{ ...styles.button, backgroundColor: '#6c757d' }}
+            >
+              Anuluj
+            </button>
+          </div>
         </form>
       ) : (
         <>
-          <p><strong>Name:</strong> {user.name}</p>
           <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Role:</strong> {user.role}</p>
-          <p><strong>Description:</strong> {user.description || 'No description provided'}</p>
-          <p><strong>Birth Date:</strong> {user.birth_date || 'No birth date provided'}</p>
+          <p><strong>Opis:</strong> {user.description || 'Brak opisu'}</p>
+          <p><strong>Data urodzenia:</strong> {user.birth_date || 'Brak daty urodzenia'}</p>
           <button onClick={() => setIsEditing(true)} style={styles.button}>
-            Edit Profile
+            Edytuj Profil
           </button>
         </>
       )}
 
       <section style={styles.postsSection}>
-        <h3>User Posts</h3>
+        <h3>Twoje posty</h3>
         {userPosts.length > 0 ? (
           userPosts.map(post => (
             <div key={post.id} style={styles.postCard}>
-              <h4>{post.title}</h4>
-              <p>{post.description}</p>
-              {post.image_url && <img src={post.image_url} alt={post.title} style={styles.image} />}
-              <p><strong>Tags:</strong> {post.tags}</p>
-              <p><strong>{post.is_paid ? 'Paid' : 'Free'} Help</strong></p>
+              <h4 style={styles.postTitle}>{post.title}</h4>
+              <p style={styles.postDescription}>{post.description}</p>
+              {post.image_url && <img src={post.image_url} alt={post.title} style={styles.postImage} />}
+              <div
+                style={{
+                  ...styles.postHelpType,
+                  backgroundColor: post.is_paid ? '#fff5e6' : '#e6ffe6',
+                }}
+              >
+                <strong>{post.is_paid ? 'Płatna Pomoc' : 'Darmowa Pomoc'}</strong>
+              </div>
             </div>
           ))
         ) : (
-          <p>No posts found.</p>
+          <p>Nie znaleziono postów.</p>
         )}
       </section>
+      
     </div>
+    
   );
+  
 }
 
 const styles = {
   container: {
-    maxWidth: '500px',
-    margin: '50px auto',
+    maxWidth: '800px',
+    margin: '0 auto',
     padding: '20px',
-    border: '1px solid #ccc',
+    fontFamily: 'Poppins, Arial, sans-serif',
+    backgroundColor: '#f9f9f9',
     borderRadius: '10px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    backgroundColor: '#f9f9f9',
   },
-  title: {
+  profileHeader: {
     textAlign: 'center',
+    marginBottom: '30px',
+  },
+  avatar: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    marginBottom: '10px',
+  },
+  profileName: {
+    fontSize: '1.8rem',
+    fontWeight: 'bold',
     color: '#007bff',
-    marginBottom: '20px',
+  },
+  roleBadge: {
+    display: 'inline-block',
+    padding: '5px 15px',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    borderRadius: '15px',
+    marginTop: '10px',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
+    gap: '15px',
   },
   inputGroup: {
     marginBottom: '15px',
@@ -168,37 +207,55 @@ const styles = {
     borderRadius: '5px',
     fontSize: '16px',
   },
+  buttonGroup: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
   button: {
     backgroundColor: '#007bff',
     color: '#fff',
     border: 'none',
     borderRadius: '5px',
-    padding: '10px',
-    cursor: 'pointer',
+    padding: '10px 20px',
     fontSize: '16px',
-    marginRight: '10px',
-  },
-  message: {
-    textAlign: 'center',
-    marginTop: '10px',
-    color: '#28a745',
+    cursor: 'pointer',
   },
   postsSection: {
     marginTop: '30px',
   },
   postCard: {
     padding: '15px',
-    backgroundColor: '#e9ecef',
+    backgroundColor: '#fff',
     borderRadius: '10px',
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    textAlign: 'left',
-    marginBottom: '15px',
+    marginBottom: '20px',
   },
-  image: {
+  postTitle: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    marginBottom: '10px',
+  },
+  postDescription: {
+    fontSize: '1rem',
+    marginBottom: '10px',
+  },
+  postHelpType: {
+    fontSize: '1rem',
+    textAlign: 'center',
+    padding: '5px',
+    borderRadius: '5px',
+  },
+  postImage: {
     width: '100%',
-    maxWidth: '400px',
-    marginTop: '10px',
-    borderRadius: '8px',
+    height: '200px',
+    objectFit: 'cover',
+    marginBottom: '10px',
+    borderRadius: '10px',
+  },
+  message: {
+    textAlign: 'center',
+    color: '#28a745',
+    marginBottom: '10px',
   },
 };
 
