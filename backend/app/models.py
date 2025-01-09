@@ -15,6 +15,10 @@ class User(db.Model):
     posts = db.relationship('Post', backref='author', lazy=True)
     # Relacja z Comment
     comments = db.relationship('Comment', backref='comment_author', lazy=True)
+    # Relacja z Message (wiadomości wysłane)
+    sent_messages = db.relationship('Message', foreign_keys='Message.sender_id', backref='sender', lazy=True)
+    # Relacja z Message (wiadomości odebrane)
+    received_messages = db.relationship('Message', foreign_keys='Message.receiver_id', backref='receiver', lazy=True)
 
 
 class Post(db.Model):
@@ -38,3 +42,15 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)  # Relacja z Post
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Relacja z User
     user_name = db.Column(db.String(100), nullable=False)  # Nick osoby komentującej
+
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)  # Unikalny identyfikator wiadomości
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # ID nadawcy
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # ID odbiorcy
+    content = db.Column(db.Text, nullable=False)  # Treść wiadomości
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)  # Data wysłania
+    is_read = db.Column(db.Boolean, default=False)  # Status przeczytania
+
+    def __repr__(self):
+        return f"<Message from {self.sender_id} to {self.receiver_id}>"

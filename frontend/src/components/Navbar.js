@@ -38,7 +38,7 @@ function Navbar({ user, setUser }) {
           <div style={isMobileMenuOpen ? styles.mobileMenu : styles.desktopMenu}>
             <Link to="/" style={styles.link}>Home</Link>
             <Link to="/posts" style={styles.link}>Wszystkie Pomoc</Link>
-            <Link to="/volunteers" style={styles.link}>Wolontariusze</Link>
+            <Link to="/messages" style={styles.link}>Wiadomości</Link>
             <Link to="/contact" style={styles.link}>Kontakt</Link>
             {user ? (
               <div style={styles.userMenu}>
@@ -71,7 +71,7 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '15px 30px',
-    backgroundColor: 'rgb(0, 123, 255)', // Bright blue background
+    backgroundColor: 'rgb(0, 123, 255)',
     fontFamily: 'Poppins, sans-serif',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
   },
@@ -83,10 +83,10 @@ const styles = {
     margin: 0,
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#ffffff', // White text
+    color: '#ffffff',
   },
   logoHighlight: {
-    color: '#000000', // Black "Care"
+    color: '#000000',
   },
   logoLink: {
     textDecoration: 'none',
@@ -98,7 +98,7 @@ const styles = {
   },
   link: {
     textDecoration: 'none',
-    color: '#ffffff', // White text
+    color: '#ffffff',
     fontSize: '18px',
     padding: '8px 15px',
     borderRadius: '5px',
@@ -161,8 +161,8 @@ const styles = {
   },
   loginButton: {
     textDecoration: 'none',
-    color: 'rgb(0, 123, 255)', // Blue text
-    backgroundColor: '#ffffff', // White background
+    color: 'rgb(0, 123, 255)',
+    backgroundColor: '#ffffff',
     padding: '8px 15px',
     borderRadius: '5px',
     fontSize: '16px',

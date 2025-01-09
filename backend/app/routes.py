@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import User, Post, Comment
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+from .models import User, Post, Comment, Message
 from . import db
 from datetime import datetime
 
@@ -62,8 +63,11 @@ def login():
         if not user or not check_password_hash(user.password, password):
             return jsonify({"error": "Invalid email or password"}), 401
 
+        access_token = create_access_token(identity=user.id)
+
         return jsonify({
             "message": "Login successful",
+            "access_token": access_token,
             "user": {
                 "id": user.id,
                 "name": user.name,
@@ -115,14 +119,7 @@ def create_post():
 @main.route('/posts', methods=['GET'])
 def get_posts():
     try:
-        filter_type = request.args.get('filter', 'all')
-        if filter_type == 'paid':
-            posts = Post.query.filter_by(is_paid=True).all()
-        elif filter_type == 'free':
-            posts = Post.query.filter_by(is_paid=False).all()
-        else:
-            posts = Post.query.all()
-
+        posts = Post.query.all()
         return jsonify([{
             "id": post.id,
             "title": post.title,
@@ -163,30 +160,13 @@ def get_post(post_id):
 @main.route('/comments/<int:post_id>', methods=['GET'])
 def get_comments(post_id):
     try:
-        post = Post.query.get(post_id)
-        if not post:
-            return jsonify({"error": "Post not found"}), 404
-
         comments = Comment.query.filter_by(post_id=post_id).all()
 
-        result = []
-        for comment in comments:
-            if comment.user_id == post.user_id or comment.user_id == comment.user_id:
-                # Twórca posta lub twórca komentarza widzi pełną treść
-                result.append({
-                    "id": comment.id,
-                    "content": comment.content,
-                    "user_name": comment.user_name
-                })
-            else:
-                # Inni użytkownicy widzą tylko nick twórcy komentarza
-                result.append({
-                    "id": comment.id,
-                    "content": "Komentarz jest ukryty",
-                    "user_name": comment.user_name
-                })
-
-        return jsonify(result), 200
+        return jsonify([{
+            "id": comment.id,
+            "content": comment.content,
+            "user_name": comment.user_name
+        } for comment in comments]), 200
 
     except Exception as e:
         print(f"Error during fetching comments: {e}")
@@ -212,7 +192,12 @@ def add_comment():
         if not post:
             return jsonify({"error": "Post not found"}), 404
 
-        new_comment = Comment(content=content, post_id=post_id, user_id=user_id, user_name=user.name)
+        new_comment = Comment(
+            content=content,
+            post_id=post_id,
+            user_id=user_id,
+            user_name=user.name
+        )
         db.session.add(new_comment)
         db.session.commit()
 
@@ -226,26 +211,61 @@ def add_comment():
         print(f"Error during adding comment: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
-# Pobranie postów użytkownika po ID
-@main.route('/user_posts/<int:user_id>', methods=['GET'])
-def get_user_posts(user_id):
+# Wysyłanie wiadomości
+@main.route('/messages/send', methods=['POST'])
+@jwt_required()
+def send_message():
     try:
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({"error": "User not found"}), 404
+        data = request.get_json()
 
-        posts = Post.query.filter_by(user_id=user_id).all()
-        return jsonify([{
-            "id": post.id,
-            "title": post.title,
-            "description": post.description,
-            "image_url": post.image_url,
-            "is_paid": post.is_paid,
-            "tags": post.tags,
-            "user_id": post.user_id,
-            "created_at": post.created_at
-        } for post in posts]), 200
+        if not data or 'receiver_id' not in data or 'content' not in data:
+            return jsonify({"error": "Brak wymaganych pól: receiver_id i content"}), 422
+
+        receiver_id = data.get('receiver_id')
+        content = data.get('content')
+
+        if not isinstance(receiver_id, int):
+            return jsonify({"error": "receiver_id musi być liczbą"}), 422
+
+        if not isinstance(content, str) or not content.strip():
+            return jsonify({"error": "content musi być niepustym ciągiem znaków"}), 422
+
+        sender_id = get_jwt_identity()
+        receiver = User.query.get(receiver_id)
+        if not receiver:
+            return jsonify({"error": "Odbiorca nie istnieje"}), 404
+
+        message = Message(sender_id=sender_id, receiver_id=receiver_id, content=content)
+        db.session.add(message)
+        db.session.commit()
+
+        return jsonify({"message": "Wiadomość wysłana pomyślnie"}), 201
 
     except Exception as e:
-        print(f"Error during fetching user posts: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+# Pobranie wiadomości
+@main.route('/messages/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_messages(user_id):
+    try:
+        current_user_id = get_jwt_identity()
+
+        messages = Message.query.filter(
+            ((Message.sender_id == current_user_id) & (Message.receiver_id == user_id)) |
+            ((Message.sender_id == user_id) & (Message.receiver_id == current_user_id))
+        ).order_by(Message.timestamp).all()
+
+        return jsonify([{
+            "id": message.id,
+            "sender_id": message.sender_id,
+            "receiver_id": message.receiver_id,
+            "content": message.content,
+            "timestamp": message.timestamp,
+            "is_read": message.is_read
+        } for message in messages]), 200
+
+    except Exception as e:
+        print(f"Error during fetching messages: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500

@@ -6,10 +6,10 @@ import Tasks from './components/Tasks';
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
-import PostList from './components/PostList';  // Nowy import
-import CreatePost from './components/AddPost';  // Nowy import
+import PostList from './components/PostList';
+import CreatePost from './components/AddPost';
 import PostDetail from './components/PostDetail';
-
+import Messages from './components/Messages'; // Nowy import
 
 function App() {
   // Inicjalizacja stanu użytkownika z Local Storage
@@ -39,8 +39,7 @@ function App() {
         <Route path="/posts" element={<PostList />} /> {/* Nowa trasa dla postów */}
         <Route path="/create_post" element={<CreatePost user={user} />} /> {/* Nowa trasa dla tworzenia postu */}
         <Route path="/post/:id" element={<PostDetail user={user} />} /> {/* Przekazujemy user */}
-
-        
+        <Route path="/messages" element={<Messages user={user} />} /> {/* Nowa trasa dla wiadomości */}
       </Routes>
     </Router>
   );

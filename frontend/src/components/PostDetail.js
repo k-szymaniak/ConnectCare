@@ -7,27 +7,27 @@ function PostDetail({ user }) {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [messageContent, setMessageContent] = useState('');
+  const [showMessageModal, setShowMessageModal] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:5000/posts/${id}`);
+        console.log("Pobrane dane posta:", response.data); // Logowanie danych posta
         setPost(response.data);
       } catch (err) {
         console.error('Błąd podczas pobierania szczegółów posta:', err);
-        setError('Nie udało się załadować szczegółów posta.');
       }
     };
 
     const fetchComments = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:5000/comments/${id}`);
+        console.log("Pobrane komentarze:", response.data); // Logowanie komentarzy
         setComments(response.data);
       } catch (err) {
         console.error('Błąd podczas pobierania komentarzy:', err);
-        setError('Nie udało się załadować komentarzy.');
       }
     };
 
@@ -38,7 +38,6 @@ function PostDetail({ user }) {
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
 
-    setLoading(true);
     try {
       const response = await axios.post('http://127.0.0.1:5000/comments', {
         post_id: id,
@@ -46,104 +45,155 @@ function PostDetail({ user }) {
         content: newComment,
       });
 
+      console.log("Dodany komentarz:", response.data); // Logowanie dodanego komentarza
+
       setComments([...comments, response.data]);
       setNewComment('');
     } catch (err) {
       console.error('Błąd podczas dodawania komentarza:', err);
-      setError('Nie udało się dodać komentarza.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (error) {
-    return <div style={styles.error}>{error}</div>;
-  }
+  const handleSendMessage = async () => {
+    if (!messageContent.trim()) {
+      alert('Treść wiadomości nie może być pusta.');
+      return;
+    }
+
+    if (!post || !post.user_id || typeof post.user_id !== 'number') {
+      alert('Nieprawidłowy odbiorca wiadomości.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      console.log("Token:", token); // Logowanie tokenu
+
+      const requestData = {
+        receiver_id: Number(post.user_id), // Tylko receiver_id i content
+        content: messageContent,
+      };
+
+      console.log("Wysyłane dane:", JSON.stringify(requestData, null, 2)); // Logowanie danych
+
+      const response = await axios.post(
+        'http://127.0.0.1:5000/messages/send',
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log("Odpowiedź serwera:", response.data); // Logowanie odpowiedzi serwera
+
+      setShowMessageModal(false);
+      setMessageContent('');
+      alert('Wiadomość została wysłana!');
+    } catch (error) {
+      console.error('Błąd podczas wysyłania wiadomości:', error);
+      console.error("Odpowiedź serwera:", error.response?.data);
+      alert('Nie udało się wysłać wiadomości. Sprawdź konsolę dla szczegółów.');
+    }
+  };
 
   if (!post) {
-    return <div style={styles.loading}>Ładowanie szczegółów posta...</div>;
+    return <div>Ładowanie szczegółów posta...</div>;
   }
 
   return (
-    <div>
-      <div style={styles.container}>
-        <div style={styles.postContent}>
-          <div style={styles.imageContainer}>
-            {post.image_url && <img src={post.image_url} alt={post.title} style={styles.image} />}
-          </div>
-          <div style={styles.details}>
-            <h1 style={styles.title}>{post.title}</h1>
-            <p style={styles.description}>{post.description}</p>
-            <p style={styles.tags}><strong>Tagi:</strong> {post.tags}</p>
-            <div
-              style={{
-                ...styles.helpType,
-                backgroundColor: post.is_paid ? '#fff5e6' : '#e6ffe6',
-                color: post.is_paid ? '#d9534f' : '#5cb85c',
-              }}
-            >
-              <strong>{post.is_paid ? 'Płatna pomoc' : 'Darmowa pomoc'}</strong>
-            </div>
+    <div style={styles.container}>
+      <div style={styles.postContent}>
+        <div style={styles.imageContainer}>
+          {post.image_url && <img src={post.image_url} alt={post.title} style={styles.image} />}
+        </div>
+        <div style={styles.details}>
+          <h1 style={styles.title}>{post.title}</h1>
+          <p style={styles.description}>{post.description}</p>
+          <p style={styles.tags}><strong>Tagi:</strong> {post.tags}</p>
+          <div
+            style={{
+              ...styles.helpType,
+              backgroundColor: post.is_paid ? '#fff5e6' : '#e6ffe6',
+              color: post.is_paid ? '#d9534f' : '#5cb85c',
+            }}
+          >
+            <strong>{post.is_paid ? 'Płatna pomoc' : 'Darmowa pomoc'}</strong>
           </div>
         </div>
-
-        <section style={styles.commentsSection}>
-          <h2 style={styles.commentsTitle}>Komentarze</h2>
-          {comments.length > 0 ? (
-            comments.map((comment) => (
-              <div key={comment.id} style={styles.commentCard}>
-                <div style={styles.avatarContainer}>
-                  <img src="/img/avatar.jpg" alt="Avatar" style={styles.avatar} />
-                  <p style={styles.commentAuthor}><strong>{comment.user_name}</strong></p>
-                </div>
-                {comment.content ? (
-                  <p style={styles.commentContent}>{comment.content}</p>
-                ) : (
-                  <p style={styles.hiddenComment}>Komentarz jest ukryty</p>
-                )}
-              </div>
-            ))
-          ) : (
-            <p style={styles.noComments}>Brak komentarzy.</p>
-          )}
-        </section>
-
-        {user && user.role === 'Wolontariusz' && (
-          <section style={styles.addCommentSection}>
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Napisz komentarz..."
-              style={styles.textarea}
-            />
-            <button
-              onClick={handleAddComment}
-              style={styles.addCommentButton}
-              disabled={loading}
-            >
-              {loading ? 'Dodawanie...' : 'Dodaj Komentarz'}
-            </button>
-          </section>
-        )}
       </div>
 
-      <footer style={styles.footer}>
-        <div style={styles.footerContainer}>
-          <div style={styles.logoSection}>
-            <h2 style={styles.logo}>ConnectCare</h2>
-          </div>
-          <div style={styles.footerLinks}>
-            <p><strong>Kontakt</strong></p>
-            <p>Email: support@connectcare.com</p>
-            <p>Telefon: +48 123 456 789</p>
-          </div>
-          <div style={styles.footerLinks}>
-            <p><strong>Śledź nas</strong></p>
-            <p>Facebook | Twitter | LinkedIn</p>
+      {user && user.id !== post.user_id && (
+        <button
+          onClick={() => setShowMessageModal(true)}
+          style={styles.messageButton}
+        >
+          Wyślij wiadomość do autora
+        </button>
+      )}
+
+      {showMessageModal && (
+        <div style={styles.modal}>
+          <div style={styles.modalContent}>
+            <h3>Wyślij wiadomość do {post.author?.name}</h3>
+            <textarea
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+              placeholder="Napisz wiadomość..."
+              style={styles.textarea}
+            />
+            <button onClick={handleSendMessage} style={styles.sendButton}>
+              Wyślij
+            </button>
+            <button
+              onClick={() => setShowMessageModal(false)}
+              style={styles.cancelButton}
+            >
+              Anuluj
+            </button>
           </div>
         </div>
-        <p style={styles.footerCopy}>© 2024 ConnectCare. Wszystkie prawa zastrzeżone.</p>
-      </footer>
+      )}
+
+      <section style={styles.commentsSection}>
+        <h2 style={styles.commentsTitle}>Komentarze</h2>
+        {comments.length > 0 ? (
+          comments.map((comment) => (
+            <div key={comment.id} style={styles.commentCard}>
+              <div style={styles.avatarContainer}>
+                <img src="/img/avatar.jpg" alt="Avatar" style={styles.avatar} />
+                <p style={styles.commentAuthor}><strong>{comment.user_name}</strong></p>
+              </div>
+              {comment.content ? (
+                <p style={styles.commentContent}>{comment.content}</p>
+              ) : (
+                <p style={styles.hiddenComment}>Komentarz jest ukryty</p>
+              )}
+            </div>
+          ))
+        ) : (
+          <p style={styles.noComments}>Brak komentarzy.</p>
+        )}
+      </section>
+
+      {user && user.role === 'Wolontariusz' && (
+        <section style={styles.addCommentSection}>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Napisz komentarz..."
+            style={styles.textarea}
+          />
+          <button
+            onClick={handleAddComment}
+            style={styles.addCommentButton}
+          >
+            Dodaj Komentarz
+          </button>
+        </section>
+      )}
     </div>
   );
 }
@@ -257,29 +307,49 @@ const styles = {
     cursor: 'pointer',
     fontSize: '1rem',
   },
-  footer: {
-    marginTop: '50px',
-    padding: '20px',
+  messageButton: {
     backgroundColor: '#007bff',
     color: '#fff',
-  },
-  footerContainer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: '10px 20px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    margin: '20px 0',
   },
-  logoSection: {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
+  modal: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  footerLinks: {
-    textAlign: 'left',
-  },
-  footerCopy: {
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: '20px',
+    borderRadius: '10px',
+    width: '400px',
     textAlign: 'center',
-    marginTop: '10px',
-    fontSize: '0.9rem',
+  },
+  sendButton: {
+    backgroundColor: '#007bff',
+    color: '#fff',
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    marginRight: '10px',
+  },
+  cancelButton: {
+    backgroundColor: '#6c757d',
+    color: '#fff',
+    padding: '10px 20px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
   },
 };
 

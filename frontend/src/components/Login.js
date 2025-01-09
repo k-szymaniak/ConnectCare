@@ -20,7 +20,14 @@ function Login({ setUser }) {
     try {
       setLoading(true);
       const response = await axios.post('http://127.0.0.1:5000/login', { email, password });
+
+      // Zapisujemy token JWT w localStorage
+      localStorage.setItem('token', response.data.access_token);
+
+      // Zapisujemy dane użytkownika w localStorage i stanie aplikacji
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
+
       setMessage(response.data.message);
       navigate('/');
     } catch (error) {
