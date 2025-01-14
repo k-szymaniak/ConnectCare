@@ -26,7 +26,7 @@ def register():
         role = data.get('role', 'Osoba potrzebująca')
         description = data.get('description', '')
         skills = [skill.strip().capitalize() for skill in data.get('skills', [])]  # Normalizacja umiejętności
-skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiejętności
+        skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiejętności
         birth_date_str = data.get('birth_date')
 
         birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date() if birth_date_str else None
@@ -86,7 +86,6 @@ def login():
                 "description": user.description,
                 "birth_date": str(user.birth_date) if user.birth_date else None,
                 "skills": [skill.strip().capitalize() for skill in (user.skills or "").split(",")] if user.skills else []
-
             }
         }), 200
 
@@ -106,7 +105,7 @@ def create_post():
         is_paid = data.get('is_paid', False)
         tags = data.get('tags', "")
         skills = [skill.strip().capitalize() for skill in data.get('skills', [])]  # Normalizacja umiejętności
-skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiejętności
+        skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiejętności
 
         user = User.query.get(user_id)
         if not user:
@@ -134,16 +133,43 @@ skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiej
 @main.route('/posts', methods=['GET'])
 def get_posts():
     try:
-        filter_param = request.args.get('filter', 'all')
-        print(f"Received filter: {filter_param}")  # Logowanie parametru filtra
-        
+        filter_param = request.args.get('filter', 'all')  # Domyślny filtr
+        skills_filter = request.args.get('skills', None)  # Nowy filtr po umiejętnościach
+
+        print(f"Received filter: {filter_param}, skills: {skills_filter}")  # Logowanie parametrów
+
+        # Bazowe zapytanie
+        query = Post.query
+
+        # Filtrowanie po typie pomocy (płatna/darmowa)
         if filter_param == 'paid':
-            posts = Post.query.filter_by(is_paid=True).all()
+            query = query.filter_by(is_paid=True)
         elif filter_param == 'free':
-            posts = Post.query.filter_by(is_paid=False).all()
-        else:
-            posts = Post.query.all()
-        
+            query = query.filter_by(is_paid=False)
+
+        # Filtrowanie po umiejętnościach
+        if skills_filter:
+            skills_filter_list = [skill.strip().capitalize() for skill in skills_filter.split(",")]
+            print(f"Skills filter list: {skills_filter_list}")  # Logowanie listy umiejętności
+
+            # Filtruj posty, które mają co najmniej jedną wspólną umiejętność z użytkownikiem
+            query = query.filter(
+                Post.skills.in_(skills_filter_list)
+            )
+
+        posts = query.all()
+
+        # Dodatkowe filtrowanie po stronie serwera (jeśli SQL nie obsługuje operacji na stringach)
+        if skills_filter:
+            posts = [
+                post for post in posts
+                if post.skills and any(
+                    skill.strip().capitalize() in skills_filter_list  # Normalizacja umiejętności w postach
+                    for skill in post.skills.split(",")
+                )
+            ]
+            print(f"Filtered posts: {posts}")  # Logowanie przefiltrowanych postów
+
         print(f"Number of posts returned: {len(posts)}")  # Logowanie liczby zwróconych postów
 
         return jsonify([{
@@ -259,9 +285,11 @@ def send_message():
             return jsonify({"error": "content musi być niepustym ciągiem znaków"}), 422
 
         sender_id = get_jwt_identity()
+        sender = User.query.get(sender_id)
         receiver = User.query.get(receiver_id)
-        if not receiver:
-            return jsonify({"error": "Odbiorca nie istnieje"}), 404
+
+        if not sender or not receiver:
+            return jsonify({"error": "Użytkownik nie istnieje"}), 404
 
         message = Message(sender_id=sender_id, receiver_id=receiver_id, content=content)
         db.session.add(message)
@@ -280,6 +308,10 @@ def get_messages(user_id):
     try:
         current_user_id = get_jwt_identity()
 
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
         messages = Message.query.filter(
             ((Message.sender_id == current_user_id) & (Message.receiver_id == user_id)) |
             ((Message.sender_id == user_id) & (Message.receiver_id == current_user_id))
@@ -296,4 +328,25 @@ def get_messages(user_id):
 
     except Exception as e:
         print(f"Error during fetching messages: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
+# Pobranie danych użytkownika
+@main.route('/user', methods=['GET'])
+@jwt_required()
+def get_user():
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        return jsonify({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "skills": [skill.strip().capitalize() for skill in (user.skills or "").split(",")] if user.skills else []
+        }), 200
+
+    except Exception as e:
+        print(f"Error during fetching user data: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500

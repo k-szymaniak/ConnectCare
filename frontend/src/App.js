@@ -5,6 +5,7 @@ import Home from './components/Home';
 import Tasks from './components/Tasks';
 import Profile from './components/Profile';
 import Register from './components/Register';
+import Contact from './components/Contact';
 import Login from './components/Login';
 import PostList from './components/PostList';
 import CreatePost from './components/AddPost';
@@ -36,10 +37,11 @@ function App() {
         <Route path="/profile" element={<Profile user={user} />} /> {/* Przekazujemy user */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login setUser={setUser} />} />
-        <Route path="/posts" element={<PostList />} /> {/* Nowa trasa dla postów */}
+        <Route path="/posts" element={<PostList user={user} />} /> {/* Nowa trasa dla postów */}
         <Route path="/create_post" element={<CreatePost user={user} />} /> {/* Nowa trasa dla tworzenia postu */}
         <Route path="/post/:id" element={<PostDetail user={user} />} /> {/* Przekazujemy user */}
         <Route path="/messages" element={<Messages user={user} />} /> {/* Nowa trasa dla wiadomości */}
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </Router>
   );

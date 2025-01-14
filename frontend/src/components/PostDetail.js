@@ -115,13 +115,12 @@ function PostDetail({ user }) {
           <div style={styles.skillsContainer}>
             <strong>Umiejętności:</strong>
             {Array.isArray(post.skills) && post.skills.length > 0 ? (
-  post.skills.map((skill, index) => (
-    <span key={index} style={styles.skillBadge}>{skill}</span>
-  ))
-) : (
-  <p style={styles.noSkills}>Brak wymaganych umiejętności.</p>
-)}
-
+              post.skills.map((skill, index) => (
+                <span key={index} style={styles.skillBadge}>{skill}</span>
+              ))
+            ) : (
+              <p style={styles.noSkills}>Brak wymaganych umiejętności.</p>
+            )}
           </div>
           <div
             style={{
@@ -208,6 +207,25 @@ function PostDetail({ user }) {
           </button>
         </section>
       )}
+
+      {/* Stopka z Home.js */}
+      <footer style={styles.footer}>
+        <div style={styles.footerContainer}>
+          <div style={styles.logoSection}>
+            <h2 style={styles.logo}>ConnectCare</h2>
+          </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Kontakt</strong></p>
+            <p>Email: support@connectcare.com</p>
+            <p>Telefon: +48 123 456 789</p>
+          </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Śledź nas</strong></p>
+            <p>Facebook | Twitter | LinkedIn</p>
+          </div>
+        </div>
+        <p style={styles.footerCopy}>© 2024 ConnectCare. Wszelkie prawa zastrzeżone.</p>
+      </footer>
     </div>
   );
 }
@@ -215,9 +233,12 @@ function PostDetail({ user }) {
 const styles = {
   container: {
     fontFamily: 'Arial, sans-serif',
-    maxWidth: '1200px',
+    maxWidth: '100%',
     margin: '0 auto',
-    padding: '20px',
+    padding: '0',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
   },
   loading: {
     textAlign: 'center',
@@ -232,19 +253,24 @@ const styles = {
   },
   postContent: {
     display: 'flex',
-    gap: '20px',
+    gap: '20px',padding: '50px',
     marginBottom: '30px',
+    flexWrap: 'wrap',
   },
   imageContainer: {
     flex: '1',
+    minWidth: '300px',
   },
   image: {
     width: '100%',
     borderRadius: '10px',
+    maxHeight: '400px',
+    objectFit: 'cover',
   },
   details: {
     flex: '2',
     textAlign: 'left',
+    minWidth: '300px',
   },
   title: {
     fontSize: '2.5rem',
@@ -290,6 +316,8 @@ const styles = {
   },
   commentsSection: {
     marginTop: '30px',
+    flex: '1',
+    padding: '50px'
   },
   commentsTitle: {
     fontSize: '1.5rem',
@@ -329,7 +357,9 @@ const styles = {
   },
   addCommentSection: {
     marginTop: '30px',
+    marginBottom: '30px',
     textAlign: 'center',
+    margin: '50px'
   },
   addCommentTitle: {
     fontSize: '1.5rem',
@@ -356,11 +386,14 @@ const styles = {
   messageButton: {
     backgroundColor: '#007bff',
     color: '#fff',
-    padding: '10px 20px',
+    fontSize: '1.5rem',
+    padding: '15px',
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
-    margin: '20px 0',
+    margin: '50px',
+    fontWeight: '600'
+  
   },
   modal: {
     position: 'fixed',
@@ -396,6 +429,30 @@ const styles = {
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
+  },
+  footer: {
+    marginTop: 'auto',
+    padding: '20px',
+    backgroundColor: '#007bff',
+    color: '#fff',
+  },
+  footerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 20px',
+  },
+  logoSection: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+  },
+  footerLinks: {
+    textAlign: 'left',
+  },
+  footerCopy: {
+    textAlign: 'center',
+    marginTop: '10px',
+    fontSize: '0.9rem',
   },
 };
 

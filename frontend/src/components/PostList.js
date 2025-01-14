@@ -2,24 +2,54 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function PostList() {
+function PostList({ user }) {
   const [posts, setPosts] = useState([]);
-  const [filter, setFilter] = useState('all'); // Domyślny filtr
+  const [filter, setFilter] = useState('all');
+  const [userSkills, setUserSkills] = useState([]);
   const navigate = useNavigate();
+
+  // Pobierz umiejętności użytkownika
+  useEffect(() => {
+    if (user && user.skills) {
+      setUserSkills(user.skills);
+    } else {
+      // Jeśli użytkownik nie jest przekazany, pobierz dane z backendu
+      const fetchUserSkills = async () => {
+        try {
+          const userResponse = await axios.get('http://127.0.0.1:5000/user', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+            },
+          });
+          setUserSkills(userResponse.data.skills || []);
+        } catch (error) {
+          console.error('Błąd podczas pobierania umiejętności użytkownika:', error);
+        }
+      };
+
+      fetchUserSkills();
+    }
+  }, [user]);
 
   // Pobierz posty z API na podstawie filtra
   useEffect(() => {
     const fetchPosts = async () => {
-        try {
-            console.log(`Fetching posts with filter: ${filter}`);  // Logowanie
-            const response = await axios.get(`http://127.0.0.1:5000/posts?filter=${filter}`);
-            setPosts(response.data);
-        } catch (error) {
-            console.error('Błąd podczas pobierania postów:', error);
+      try {
+        console.log(`Fetching posts with filter: ${filter}`);  // Logowanie
+        const params = { filter };
+        if (filter === 'skills' && userSkills.length > 0) {
+          params.skills = userSkills.join(",");
+          console.log("Skills filter applied:", params.skills);  // Logowanie umiejętności
         }
+        const response = await axios.get(`http://127.0.0.1:5000/posts`, { params });
+        console.log("Posts received:", response.data);  // Logowanie otrzymanych postów
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Błąd podczas pobierania postów:', error);
+      }
     };
     fetchPosts();
-}, [filter]);
+  }, [filter, userSkills]);
 
   return (
     <div style={styles.container}>
@@ -33,7 +63,7 @@ function PostList() {
           style={filter === 'all' ? styles.activeFilterButton : styles.filterButton}
           onClick={() => setFilter('all')}
         >
-          Wszystkie Pomoc
+          Pomoc!
         </button>
         <button
           style={filter === 'paid' ? styles.activeFilterButton : styles.filterButton}
@@ -46,6 +76,12 @@ function PostList() {
           onClick={() => setFilter('free')}
         >
           Darmowa Pomoc
+        </button>
+        <button
+          style={filter === 'skills' ? styles.activeFilterButtonSkills : styles.filterButtonSkills}
+          onClick={() => setFilter('skills')}
+        >
+          Match<sup>NEW</sup>
         </button>
       </div>
 
@@ -62,13 +98,13 @@ function PostList() {
                 <p><strong>Tagi:</strong> {post.tags}</p>
               </div>
               <div
-    style={{
-        ...styles.postHelpType,
-        backgroundColor: !!post.is_paid ? '#fff5e6' : '#e6ffe6',
-    }}
->
-    <strong>{!!post.is_paid ? 'Płatna Pomoc' : 'Darmowa Pomoc'}</strong>
-</div>
+                style={{
+                  ...styles.postHelpType,
+                  backgroundColor: !!post.is_paid ? '#fff5e6' : '#e6ffe6',
+                }}
+              >
+                <strong>{!!post.is_paid ? 'Płatna Pomoc' : 'Darmowa Pomoc'}</strong>
+              </div>
 
               <button
                 style={styles.viewPostButton}
@@ -117,8 +153,6 @@ const styles = {
   header: {
     textAlign: 'center',
     padding: '30px 20px',
-    
-    
     borderRadius: '0px',
   },
   headerTitle: {
@@ -153,6 +187,28 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     fontSize: '16px',
+  },
+  filterButtonSkills: {
+    backgroundColor: '#ff4081',  // Żywy różowy kolor
+    color: '#fff',
+    padding: '10px 20px',
+    margin: '5px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
+  },
+  activeFilterButtonSkills: {
+    backgroundColor: '#e91e63',  // Ciemniejszy różowy kolor dla aktywnego przycisku
+    color: '#fff',
+    padding: '10px 20px',
+    margin: '5px',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 'bold',
   },
   posts: {
     display: 'grid',
@@ -221,7 +277,6 @@ const styles = {
     padding: '20px',
     backgroundColor: '#007bff',
     color: '#fff',
-    
   },
   footerContainer: {
     display: 'flex',

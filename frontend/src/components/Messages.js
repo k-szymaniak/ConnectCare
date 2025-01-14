@@ -78,10 +78,11 @@ function Messages({ user }) {
 
   return (
     <div style={styles.container}>
-      <h1>Wiadomości</h1>
+      <h1 style={styles.title}>Wiadomości</h1>
       <div style={styles.messagesContainer}>
+        {/* Lista użytkowników */}
         <div style={styles.usersList}>
-          <h2>Użytkownicy</h2>
+          <h2 style={styles.subtitle}>Użytkownicy</h2>
           {users.map((u) => (
             <div
               key={u.id}
@@ -96,16 +97,25 @@ function Messages({ user }) {
             </div>
           ))}
         </div>
+
+        {/* Czat */}
         <div style={styles.chat}>
-          <h2>Rozmowa z {users.find((u) => u.id === selectedUser)?.name || '...'}</h2>
+          <h2 style={styles.subtitle}>
+            Rozmowa z {users.find((u) => u.id === selectedUser)?.name || '...'}
+          </h2>
           {error && <p style={styles.error}>{error}</p>}
           <div style={styles.messages}>
             {messages.map((message) => (
-              <div key={message.id} style={styles.message}>
-                <p>
-                  <strong>{message.sender_id === user.id ? 'Ty' : 'Użytkownik'}:</strong>{' '}
-                  {message.content}
-                </p>
+              <div
+                key={message.id}
+                style={{
+                  ...styles.message,
+                  alignSelf: message.sender_id === user.id ? 'flex-end' : 'flex-start',
+                  backgroundColor: message.sender_id === user.id ? '#007bff' : '#f1f1f1',
+                  color: message.sender_id === user.id ? '#fff' : '#000',
+                }}
+              >
+                <p>{message.content}</p>
               </div>
             ))}
           </div>
@@ -120,24 +130,72 @@ function Messages({ user }) {
           </button>
         </div>
       </div>
+
+      {/* Stopka */}
+      <footer style={styles.footer}>
+        <div style={styles.footerContainer}>
+          <div style={styles.logoSection}>
+            <h2 style={styles.logo}>ConnectCare</h2>
+          </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Kontakt</strong></p>
+            <p>Email: support@connectcare.com</p>
+            <p>Telefon: +48 123 456 789</p>
+          </div>
+          <div style={styles.footerLinks}>
+            <p><strong>Śledź nas</strong></p>
+            <p>Facebook | Twitter | LinkedIn</p>
+          </div>
+        </div>
+        <p style={styles.footerCopy}>© 2024 ConnectCare. Wszelkie prawa zastrzeżone.</p>
+      </footer>
     </div>
   );
 }
 
 const styles = {
   container: {
-    maxWidth: '1200px',
+    maxWidth: '100%',
     margin: '0 auto',
-    padding: '20px',
+    padding: '0',
+    fontFamily: 'Poppins, Arial, sans-serif',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '10px',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  title: {
+    fontSize: '2.5rem',
+    fontWeight: 'bold',
+    marginBottom: '20px',
+    color: '#333',
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: '1.8rem',
+    marginBottom: '20px',
+    color: '#333',
   },
   messagesContainer: {
     display: 'flex',
     gap: '20px',
+    flex: 1,
+    '@media (max-width: 768px)': {
+      flexDirection: 'column',
+    },
+    padding:'50px'
   },
   usersList: {
     flex: 1,
     borderRight: '1px solid #ccc',
     paddingRight: '20px',
+    '@media (max-width: 768px)': {
+      borderRight: 'none',
+      paddingRight: '0',
+      borderBottom: '1px solid #ccc',
+      paddingBottom: '20px',
+    },
   },
   userItem: {
     padding: '10px',
@@ -145,6 +203,10 @@ const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
     transition: 'background-color 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#007bff',
+      color: '#fff',
+    },
   },
   chat: {
     flex: 3,
@@ -155,9 +217,17 @@ const styles = {
     border: '1px solid #ccc',
     padding: '10px',
     marginBottom: '10px',
+    borderRadius: '5px',
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
   },
   message: {
-    marginBottom: '10px',
+    padding: '10px',
+    borderRadius: '5px',
+    maxWidth: '70%',
+    wordWrap: 'break-word',
   },
   textarea: {
     width: '100%',
@@ -165,6 +235,8 @@ const styles = {
     padding: '10px',
     borderRadius: '5px',
     border: '1px solid #ccc',
+    marginBottom: '10px',
+    resize: 'none',
   },
   sendButton: {
     backgroundColor: '#007bff',
@@ -173,11 +245,50 @@ const styles = {
     border: 'none',
     borderRadius: '5px',
     cursor: 'pointer',
-    marginTop: '10px',
+    fontSize: '1rem',
+    transition: 'background-color 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#0056b3',
+    },
   },
   error: {
     color: '#d9534f',
     marginBottom: '10px',
+    textAlign: 'center',
+  },
+  footer: {
+    width: '100%',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    marginTop: 'auto',
+  },
+  footerContainer: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '20px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    '@media (max-width: 768px)': {
+      flexDirection: 'column',
+      textAlign: 'center',
+    },
+  },
+  logoSection: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+  },
+  footerLinks: {
+    textAlign: 'left',
+    '@media (max-width: 768px)': {
+      textAlign: 'center',
+      margin: '10px 0',
+    },
+  },
+  footerCopy: {
+    textAlign: 'center',
+    marginTop: '10px',
+    fontSize: '0.9rem',
   },
 };
 
