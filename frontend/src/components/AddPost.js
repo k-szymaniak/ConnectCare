@@ -7,8 +7,24 @@ function AddPost({ user }) {
   const [imageUrl, setImageUrl] = useState('');
   const [isPaid, setIsPaid] = useState(false);
   const [tags, setTags] = useState('');
+  const [skills, setSkills] = useState([]); // Nowe pole dla umiejętności
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const availableSkills = [
+    "Doświadczony", "Nowy", "Złota rączka", "Pomoc w zakupach", "Pomoc w sprzątaniu",
+    "Pomoc w opiece nad zwierzętami", "Pomoc w ogrodzie", "Pomoc w remoncie",
+    "Pomoc w nauce", "Pomoc w transporcie", "Pomoc w gotowaniu", "Pomoc w opiece nad dziećmi",
+    "Pomoc w organizacji wydarzeń", "Pomoc w naprawie sprzętu elektronicznego", "Pomoc w pisaniu CV"
+  ];
+
+  const handleSkillChange = (skill) => {
+    setSkills(prevSkills =>
+      prevSkills.includes(skill)
+        ? prevSkills.filter(s => s !== skill)
+        : [...prevSkills, skill]
+    );
+  };
 
   const handleSubmit = async () => {
     if (!title || !description) {
@@ -25,7 +41,8 @@ function AddPost({ user }) {
         description,
         image_url: imageUrl,
         is_paid: isPaid,
-        tags
+        tags,
+        skills, // Dodanie umiejętności do wysyłanych danych
       });
       setMessage(response.data.message);
       setLoading(false);
@@ -34,6 +51,7 @@ function AddPost({ user }) {
       setImageUrl('');
       setIsPaid(false);
       setTags('');
+      setSkills([]);
     } catch (error) {
       console.error("Błąd podczas tworzenia posta:", error.response || error.message);
       setMessage(error.response?.data?.error || 'Wystąpił nieoczekiwany błąd.');
@@ -92,6 +110,20 @@ function AddPost({ user }) {
             style={styles.input}
           />
         </div>
+        <div style={styles.inputGroup}>
+          <label style={styles.label}>Umiejętności:</label>
+          {availableSkills.map(skill => (
+            <div key={skill} style={styles.checkboxGroup}>
+              <input
+                type="checkbox"
+                id={skill}
+                checked={skills.includes(skill)}
+                onChange={() => handleSkillChange(skill)}
+              />
+              <label htmlFor={skill}>{skill}</label>
+            </div>
+          ))}
+        </div>
         <button
           type="button"
           onClick={handleSubmit}
@@ -146,17 +178,22 @@ const styles = {
   },
   textarea: {
     width: '100%',
+    height: '120px',
     padding: '10px',
     border: '1px solid #ccc',
     borderRadius: '5px',
     fontSize: '16px',
     boxSizing: 'border-box',
-    height: '120px',
     resize: 'none',
   },
   checkbox: {
     marginLeft: '10px',
     transform: 'scale(1.5)',
+  },
+  checkboxGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '5px',
   },
   button: {
     backgroundColor: '#007bff',
@@ -169,9 +206,6 @@ const styles = {
     cursor: 'pointer',
     marginTop: '10px',
     transition: 'background-color 0.3s ease',
-  },
-  buttonHover: {
-    backgroundColor: '#0056b3',
   },
   message: {
     textAlign: 'center',

@@ -9,34 +9,35 @@ function PostDetail({ user }) {
   const [newComment, setNewComment] = useState('');
   const [messageContent, setMessageContent] = useState('');
   const [showMessageModal, setShowMessageModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:5000/posts/${id}`);
-        console.log("Pobrane dane posta:", response.data); // Logowanie danych posta
-        setPost(response.data);
+        const [postResponse, commentsResponse] = await Promise.all([
+          axios.get(`http://127.0.0.1:5000/posts/${id}`),
+          axios.get(`http://127.0.0.1:5000/comments/${id}`),
+        ]);
+
+        setPost(postResponse.data);
+        setComments(commentsResponse.data);
       } catch (err) {
-        console.error('Błąd podczas pobierania szczegółów posta:', err);
+        setError('Wystąpił błąd podczas pobierania danych.');
+        console.error('Błąd podczas pobierania danych:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchComments = async () => {
-      try {
-        const response = await axios.get(`http://127.0.0.1:5000/comments/${id}`);
-        console.log("Pobrane komentarze:", response.data); // Logowanie komentarzy
-        setComments(response.data);
-      } catch (err) {
-        console.error('Błąd podczas pobierania komentarzy:', err);
-      }
-    };
-
-    fetchPost();
-    fetchComments();
+    fetchData();
   }, [id]);
 
   const handleAddComment = async () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim()) {
+      alert('Komentarz nie może być pusty.');
+      return;
+    }
 
     try {
       const response = await axios.post('http://127.0.0.1:5000/comments', {
@@ -45,11 +46,10 @@ function PostDetail({ user }) {
         content: newComment,
       });
 
-      console.log("Dodany komentarz:", response.data); // Logowanie dodanego komentarza
-
       setComments([...comments, response.data]);
       setNewComment('');
     } catch (err) {
+      alert('Wystąpił błąd podczas dodawania komentarza.');
       console.error('Błąd podczas dodawania komentarza:', err);
     }
   };
@@ -67,18 +67,12 @@ function PostDetail({ user }) {
 
     try {
       const token = localStorage.getItem('token');
-      console.log("Token:", token); // Logowanie tokenu
-
-      const requestData = {
-        receiver_id: Number(post.user_id), // Tylko receiver_id i content
-        content: messageContent,
-      };
-
-      console.log("Wysyłane dane:", JSON.stringify(requestData, null, 2)); // Logowanie danych
-
       const response = await axios.post(
         'http://127.0.0.1:5000/messages/send',
-        requestData,
+        {
+          receiver_id: Number(post.user_id),
+          content: messageContent,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -87,20 +81,25 @@ function PostDetail({ user }) {
         }
       );
 
-      console.log("Odpowiedź serwera:", response.data); // Logowanie odpowiedzi serwera
-
       setShowMessageModal(false);
       setMessageContent('');
       alert('Wiadomość została wysłana!');
     } catch (error) {
+      alert('Nie udało się wysłać wiadomości.');
       console.error('Błąd podczas wysyłania wiadomości:', error);
-      console.error("Odpowiedź serwera:", error.response?.data);
-      alert('Nie udało się wysłać wiadomości. Sprawdź konsolę dla szczegółów.');
     }
   };
 
+  if (loading) {
+    return <div style={styles.loading}>Ładowanie...</div>;
+  }
+
+  if (error) {
+    return <div style={styles.error}>{error}</div>;
+  }
+
   if (!post) {
-    return <div>Ładowanie szczegółów posta...</div>;
+    return <div style={styles.error}>Nie znaleziono posta.</div>;
   }
 
   return (
@@ -112,7 +111,18 @@ function PostDetail({ user }) {
         <div style={styles.details}>
           <h1 style={styles.title}>{post.title}</h1>
           <p style={styles.description}>{post.description}</p>
-          <p style={styles.tags}><strong>Tagi:</strong> {post.tags}</p>
+          <p style={styles.tags}><strong>Tagi:</strong> {post.tags || 'Brak tagów'}</p>
+          <div style={styles.skillsContainer}>
+            <strong>Umiejętności:</strong>
+            {Array.isArray(post.skills) && post.skills.length > 0 ? (
+  post.skills.map((skill, index) => (
+    <span key={index} style={styles.skillBadge}>{skill}</span>
+  ))
+) : (
+  <p style={styles.noSkills}>Brak wymaganych umiejętności.</p>
+)}
+
+          </div>
           <div
             style={{
               ...styles.helpType,
@@ -129,6 +139,7 @@ function PostDetail({ user }) {
         <button
           onClick={() => setShowMessageModal(true)}
           style={styles.messageButton}
+          aria-label="Wyślij wiadomość do autora"
         >
           Wyślij wiadomość do autora
         </button>
@@ -143,6 +154,7 @@ function PostDetail({ user }) {
               onChange={(e) => setMessageContent(e.target.value)}
               placeholder="Napisz wiadomość..."
               style={styles.textarea}
+              aria-label="Treść wiadomości"
             />
             <button onClick={handleSendMessage} style={styles.sendButton}>
               Wyślij
@@ -157,8 +169,8 @@ function PostDetail({ user }) {
         </div>
       )}
 
-      <section style={styles.commentsSection}>
-        <h2 style={styles.commentsTitle}>Komentarze</h2>
+      <section style={styles.commentsSection} aria-labelledby="comments-title">
+        <h2 id="comments-title" style={styles.commentsTitle}>Komentarze</h2>
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div key={comment.id} style={styles.commentCard}>
@@ -179,12 +191,14 @@ function PostDetail({ user }) {
       </section>
 
       {user && user.role === 'Wolontariusz' && (
-        <section style={styles.addCommentSection}>
+        <section style={styles.addCommentSection} aria-labelledby="add-comment-title">
+          <h2 id="add-comment-title" style={styles.addCommentTitle}>Dodaj komentarz</h2>
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Napisz komentarz..."
             style={styles.textarea}
+            aria-label="Treść komentarza"
           />
           <button
             onClick={handleAddComment}
@@ -204,6 +218,17 @@ const styles = {
     maxWidth: '1200px',
     margin: '0 auto',
     padding: '20px',
+  },
+  loading: {
+    textAlign: 'center',
+    fontSize: '1.5rem',
+    marginTop: '50px',
+  },
+  error: {
+    textAlign: 'center',
+    fontSize: '1.5rem',
+    color: '#d9534f',
+    marginTop: '50px',
   },
   postContent: {
     display: 'flex',
@@ -236,6 +261,23 @@ const styles = {
     fontSize: '1rem',
     color: '#333',
     marginBottom: '20px',
+  },
+  skillsContainer: {
+    marginBottom: '20px',
+  },
+  skillBadge: {
+    display: 'inline-block',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    padding: '5px 10px',
+    borderRadius: '15px',
+    margin: '5px',
+    fontSize: '0.9rem',
+  },
+  noSkills: {
+    fontSize: '1rem',
+    color: '#888',
+    fontStyle: 'italic',
   },
   helpType: {
     fontSize: '1.2rem',
@@ -288,6 +330,10 @@ const styles = {
   addCommentSection: {
     marginTop: '30px',
     textAlign: 'center',
+  },
+  addCommentTitle: {
+    fontSize: '1.5rem',
+    marginBottom: '20px',
   },
   textarea: {
     width: '100%',

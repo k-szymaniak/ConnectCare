@@ -7,8 +7,24 @@ function Profile({ user, setUser }) {
   const [role, setRole] = useState(user?.role || 'Osoba potrzebująca');
   const [description, setDescription] = useState(user?.description || '');
   const [birthDate, setBirthDate] = useState(user?.birth_date || '');
+  const [skills, setSkills] = useState(Array.isArray(user?.skills) ? user.skills : []);
   const [message, setMessage] = useState('');
   const [userPosts, setUserPosts] = useState([]);
+
+  const availableSkills = [
+    "Doświadczony", "Nowy", "Złota rączka", "Pomoc w zakupach", "Pomoc w sprzątaniu",
+    "Pomoc w opiece nad zwierzętami", "Pomoc w ogrodzie", "Pomoc w remoncie",
+    "Pomoc w nauce", "Pomoc w transporcie", "Pomoc w gotowaniu", "Pomoc w opiece nad dziećmi",
+    "Pomoc w organizacji wydarzeń", "Pomoc w naprawie sprzętu elektronicznego", "Pomoc w pisaniu CV"
+  ];
+
+  const handleSkillChange = (skill) => {
+    setSkills(prevSkills =>
+      prevSkills.includes(skill)
+        ? prevSkills.filter(s => s !== skill)
+        : [...prevSkills, skill]
+    );
+  };
 
   useEffect(() => {
     if (user) {
@@ -26,19 +42,30 @@ function Profile({ user, setUser }) {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(`http://127.0.0.1:5000/profile/${user.id}`, {
-        name,
-        role,
-        description,
-        birth_date: birthDate,
-      });
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `http://127.0.0.1:5000/profile/${user.id}`,
+        {
+          name,
+          role,
+          description,
+          birth_date: birthDate,
+          skills: Array.isArray(skills) ? skills.join(',') : '',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       setUser(response.data.user);
-      setMessage(response.data.message);
+      setMessage('Profil został zaktualizowany pomyślnie.');
       setIsEditing(false);
     } catch (error) {
-      console.error("Error during profile update:", error.response || error.message);
-      setMessage(error.response?.data?.error || 'An unexpected error occurred');
+      console.error('Błąd podczas aktualizacji profilu:', error.response || error.message);
+      setMessage(error.response?.data?.error || 'Wystąpił błąd podczas aktualizacji profilu.');
     }
   };
 
@@ -98,6 +125,22 @@ function Profile({ user, setUser }) {
             />
           </div>
           <div style={styles.inputGroup}>
+            <label>Umiejętności:</label>
+            <div style={styles.skillsContainer}>
+              {availableSkills.map(skill => (
+                <div key={skill} style={styles.skillBadge}>
+                  <input
+                    type="checkbox"
+                    id={skill}
+                    checked={skills.includes(skill)}
+                    onChange={() => handleSkillChange(skill)}
+                  />
+                  <label htmlFor={skill} style={styles.skillLabel}>{skill}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={styles.inputGroup}>
             <label>Data urodzenia:</label>
             <input
               type="date"
@@ -123,6 +166,7 @@ function Profile({ user, setUser }) {
         <>
           <p><strong>Email:</strong> {user.email}</p>
           <p><strong>Opis:</strong> {user.description || 'Brak opisu'}</p>
+          <p><strong>Umiejętności:</strong> {user.skills || 'Brak umiejętności'}</p>
           <p><strong>Data urodzenia:</strong> {user.birth_date || 'Brak daty urodzenia'}</p>
           <button onClick={() => setIsEditing(true)} style={styles.button}>
             Edytuj Profil
@@ -152,11 +196,8 @@ function Profile({ user, setUser }) {
           <p>Nie znaleziono postów.</p>
         )}
       </section>
-      
     </div>
-    
   );
-  
 }
 
 const styles = {
@@ -206,6 +247,23 @@ const styles = {
     border: '1px solid #ccc',
     borderRadius: '5px',
     fontSize: '16px',
+  },
+  skillsContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+  },
+  skillBadge: {
+    backgroundColor: '#007bff',
+    borderRadius: '5px',
+    padding: '5px 10px',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  skillLabel: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginLeft: '5px',
   },
   buttonGroup: {
     display: 'flex',

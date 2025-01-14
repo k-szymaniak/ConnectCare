@@ -7,6 +7,14 @@ from datetime import datetime
 
 main = Blueprint('main', __name__)
 
+# Lista dostępnych umiejętności
+AVAILABLE_SKILLS = [
+    "Doświadczony", "Nowy", "Złota rączka", "Pomoc w zakupach", "Pomoc w sprzątaniu",
+    "Pomoc w opiece nad zwierzętami", "Pomoc w ogrodzie", "Pomoc w remoncie",
+    "Pomoc w nauce", "Pomoc w transporcie", "Pomoc w gotowaniu", "Pomoc w opiece nad dziećmi",
+    "Pomoc w organizacji wydarzeń", "Pomoc w naprawie sprzętu elektronicznego", "Pomoc w pisaniu CV"
+]
+
 # Rejestracja użytkownika
 @main.route('/register', methods=['POST'])
 def register():
@@ -17,6 +25,8 @@ def register():
         password = data.get('password')
         role = data.get('role', 'Osoba potrzebująca')
         description = data.get('description', '')
+        skills = [skill.strip().capitalize() for skill in data.get('skills', [])]  # Normalizacja umiejętności
+skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiejętności
         birth_date_str = data.get('birth_date')
 
         birth_date = datetime.strptime(birth_date_str, "%Y-%m-%d").date() if birth_date_str else None
@@ -33,7 +43,7 @@ def register():
         new_user = User(
             email=email,
             name=name,
-            skills='',
+            skills=skills_str,  # Zmodyfikowana logika umiejętności
             password=hashed_password,
             role=role,
             description=description,
@@ -74,7 +84,9 @@ def login():
                 "email": user.email,
                 "role": user.role,
                 "description": user.description,
-                "birth_date": str(user.birth_date) if user.birth_date else None
+                "birth_date": str(user.birth_date) if user.birth_date else None,
+                "skills": [skill.strip().capitalize() for skill in (user.skills or "").split(",")] if user.skills else []
+
             }
         }), 200
 
@@ -93,6 +105,8 @@ def create_post():
         image_url = data.get('image_url')
         is_paid = data.get('is_paid', False)
         tags = data.get('tags', "")
+        skills = [skill.strip().capitalize() for skill in data.get('skills', [])]  # Normalizacja umiejętności
+skills_str = ",".join(skills) if skills else ""  # Pusty ciąg jeśli brak umiejętności
 
         user = User.query.get(user_id)
         if not user:
@@ -104,6 +118,7 @@ def create_post():
             image_url=image_url,
             is_paid=is_paid,
             tags=tags,
+            skills=skills_str,  # Zmodyfikowana logika umiejętności
             user_id=user_id
         )
         db.session.add(new_post)
@@ -119,7 +134,18 @@ def create_post():
 @main.route('/posts', methods=['GET'])
 def get_posts():
     try:
-        posts = Post.query.all()
+        filter_param = request.args.get('filter', 'all')
+        print(f"Received filter: {filter_param}")  # Logowanie parametru filtra
+        
+        if filter_param == 'paid':
+            posts = Post.query.filter_by(is_paid=True).all()
+        elif filter_param == 'free':
+            posts = Post.query.filter_by(is_paid=False).all()
+        else:
+            posts = Post.query.all()
+        
+        print(f"Number of posts returned: {len(posts)}")  # Logowanie liczby zwróconych postów
+
         return jsonify([{
             "id": post.id,
             "title": post.title,
@@ -127,6 +153,7 @@ def get_posts():
             "image_url": post.image_url,
             "is_paid": post.is_paid,
             "tags": post.tags,
+            "skills": [skill.strip().capitalize() for skill in post.skills.split(",")] if post.skills else [],
             "user_id": post.user_id
         } for post in posts]), 200
 
@@ -149,6 +176,7 @@ def get_post(post_id):
             "image_url": post.image_url,
             "is_paid": post.is_paid,
             "tags": post.tags,
+            "skills": post.skills.split(",") if post.skills else [],  # Umiejętności jako lista
             "user_id": post.user_id
         }), 200
 

@@ -23,16 +23,24 @@ def create_app():
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
+    # Konfiguracja CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": ["http://localhost:3000"],  # Zezwól tylko na żądania z frontendu (React)
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Zezwól na te metody HTTP
+            "allow_headers": ["Content-Type", "Authorization"],  # Zezwól na te nagłówki
+        }
+    })
+
     # Inicjalizacja rozszerzeń
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)
     jwt = JWTManager(app)
 
     # Rejestracja blueprintów (tras)
     with app.app_context():
         from .routes import main
         app.register_blueprint(main)
-        db.create_all()
+        db.create_all()  # Tworzenie tabel w bazie danych (jeśli nie istnieją)
 
     return app

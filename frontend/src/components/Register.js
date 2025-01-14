@@ -9,9 +9,25 @@ function Register() {
   const [role, setRole] = useState('Osoba potrzebująca');
   const [description, setDescription] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [skills, setSkills] = useState([]); // Nowe pole dla umiejętności
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const availableSkills = [
+    "Doświadczony", "Nowy", "Złota rączka", "Pomoc w zakupach", "Pomoc w sprzątaniu",
+    "Pomoc w opiece nad zwierzętami", "Pomoc w ogrodzie", "Pomoc w remoncie",
+    "Pomoc w nauce", "Pomoc w transporcie", "Pomoc w gotowaniu", "Pomoc w opiece nad dziećmi",
+    "Pomoc w organizacji wydarzeń", "Pomoc w naprawie sprzętu elektronicznego", "Pomoc w pisaniu CV"
+  ];
+
+  const handleSkillChange = (skill) => {
+    setSkills(prevSkills =>
+      prevSkills.includes(skill)
+        ? prevSkills.filter(s => s !== skill)
+        : [...prevSkills, skill]
+    );
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +40,7 @@ function Register() {
         role,
         description,
         birth_date: birthDate,
+        skills, // Dodanie umiejętności do wysyłanych danych
       });
       setMessage(response.data.message);
       navigate('/login');
@@ -98,6 +115,20 @@ function Register() {
             style={styles.input}
           />
         </div>
+        <div style={styles.inputGroup}>
+          <label style={styles.label}>Umiejętności:</label>
+          {availableSkills.map(skill => (
+            <div key={skill} style={styles.checkboxGroup}>
+              <input
+                type="checkbox"
+                id={skill}
+                checked={skills.includes(skill)}
+                onChange={() => handleSkillChange(skill)}
+              />
+              <label htmlFor={skill}>{skill}</label>
+            </div>
+          ))}
+        </div>
         <button type="submit" style={{ ...styles.button, opacity: loading ? 0.7 : 1 }} disabled={loading}>
           {loading ? 'Rejestrowanie...' : 'Zarejestruj się'}
         </button>
@@ -145,6 +176,11 @@ const styles = {
     fontSize: '14px',
     outline: 'none',
     transition: 'box-shadow 0.3s ease',
+  },
+  checkboxGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    marginBottom: '5px',
   },
   button: {
     background: 'linear-gradient(90deg, #007bff, #0056b3)',

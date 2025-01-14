@@ -10,15 +10,16 @@ function PostList() {
   // Pobierz posty z API na podstawie filtra
   useEffect(() => {
     const fetchPosts = async () => {
-      try {
-        const response = await axios.get(`http://127.0.0.1:5000/posts?filter=${filter}`);
-        setPosts(response.data);
-      } catch (error) {
-        console.error('Błąd podczas pobierania postów:', error);
-      }
+        try {
+            console.log(`Fetching posts with filter: ${filter}`);  // Logowanie
+            const response = await axios.get(`http://127.0.0.1:5000/posts?filter=${filter}`);
+            setPosts(response.data);
+        } catch (error) {
+            console.error('Błąd podczas pobierania postów:', error);
+        }
     };
     fetchPosts();
-  }, [filter]);
+}, [filter]);
 
   return (
     <div style={styles.container}>
@@ -61,13 +62,14 @@ function PostList() {
                 <p><strong>Tagi:</strong> {post.tags}</p>
               </div>
               <div
-                style={{
-                  ...styles.postHelpType,
-                  backgroundColor: post.is_paid ? '#fff5e6' : '#e6ffe6',
-                }}
-              >
-                <strong>{post.is_paid ? 'Płatna Pomoc' : 'Darmowa Pomoc'}</strong>
-              </div>
+    style={{
+        ...styles.postHelpType,
+        backgroundColor: !!post.is_paid ? '#fff5e6' : '#e6ffe6',
+    }}
+>
+    <strong>{!!post.is_paid ? 'Płatna Pomoc' : 'Darmowa Pomoc'}</strong>
+</div>
+
               <button
                 style={styles.viewPostButton}
                 onClick={() => navigate(`/post/${post.id}`)}
